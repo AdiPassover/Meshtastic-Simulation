@@ -12,18 +12,20 @@ import java.util.List;
 public class Node implements Iterable<Edge>, Serializable {
     @Serial private static final long serialVersionUID = 1L;
 
-    public final String id;
+    public final int id;
     private final List<Edge> edges = new ArrayList<>();
 
     public final Position position;
     public final Transmitter transmitter = new Transmitter();
 
 
-    public Node(String id, Position pos) {
+    public Node(int id, Position pos) {
         this.id = id;
         this.position = pos;
     }
 
+    public double x() { return position.x; }
+    public double y() { return position.y; }
     public double distanceTo(Node other) { return position.distance(other.position); }
 
     @Override

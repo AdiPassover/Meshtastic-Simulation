@@ -23,6 +23,9 @@ public class Position implements Serializable {
     public double distance(Position other) {
         return distance(other.x, other.y, other.z);
     }
+    public double distance2D() {
+        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+    }
 
     @Override
     public String toString() {

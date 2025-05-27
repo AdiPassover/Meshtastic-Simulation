@@ -1,12 +1,69 @@
 package GUI.modes;
 
+import GUI.Constants;
+import GUI.MainSimulationWindow;
+import GUI.shapesGUI.BlockGUI;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+
+
 public class AddBlockMode extends Mode {
+    public AddBlockMode(MainSimulationWindow mainWindow) { super(mainWindow); }
+
+    private final List<Point> points = new ArrayList<>();
 
     @Override
-    public void mousePressed(int x, int y) {
+    public void mouseClick(int x, int y) {
+        points.add(new Point(x, y));
+    }
+
+    @Override
+    public void mouseRightClick(int x, int y) {
+        if (points.size() < 3) return;
+
+       // TODO prompt height
+        double height = 0.0;
+
+        int[][] pointsArray = new int [2] [points.size()];
+        for (int i = 0; i < points.size(); i++) {
+            pointsArray[0][i] = points.get(i).x;
+            pointsArray[1][i] = points.get(i).y;
+        }
+        Polygon polygon = new Polygon(pointsArray[0], pointsArray[1], points.size());
+        mainWindow.addBlock(new BlockGUI(polygon, height));
+
+        close();
     }
 
     @Override
     public void mouseHover(int x, int y) {
+        mainWindow.getDrawingPanel().setPreview(g -> {
+            drawPreview(g, x, y);
+        });
     }
+
+    private void drawPreview(Graphics2D g, int x, int y) {
+        if (points.isEmpty()) return;
+
+        int[] xs = new int[points.size() + 1];
+        int[] ys = new int[points.size() + 1];
+        for (int i = 0; i < points.size(); i++) {
+            xs[i] = points.get(i).x;
+            ys[i] = points.get(i).y;
+        }
+        xs[points.size()] = x;
+        ys[points.size()] = y;
+        g.setColor(Constants.NODE_PREVIEW_COLOR);
+        g.drawPolygon(xs, ys, points.size() + 1);
+    }
+
+    @Override
+    public void close() {
+        mainWindow.getDrawingPanel().clearPreview();
+        points.clear();
+    }
+
+
 }

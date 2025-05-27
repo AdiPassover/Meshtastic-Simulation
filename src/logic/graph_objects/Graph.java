@@ -13,10 +13,10 @@ public class Graph {
     public Graph() {}
 
     public void addNode(Node node) {
-        nodes.put(node.id.hashCode(), node);
+        nodes.put(node.id, node);
     }
     public boolean hasNode(Node node) {
-        return nodes.containsKey(node.id.hashCode());
+        return nodes.containsKey(node.id);
     }
     public void addEdge(Edge edge) {
         edges.add(edge);
