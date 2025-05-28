@@ -67,7 +67,8 @@ public class AddBlockMode extends Mode {
         }
         xs[points.size()] = x;
         ys[points.size()] = y;
-        g.setColor(Constants.NODE_PREVIEW_COLOR);
+        g.setColor(Constants.PREVIEW_COLOR);
+        g.setStroke(Constants.PREVIEW_STROKE);
         g.drawPolygon(xs, ys, points.size() + 1);
     }
 

@@ -7,6 +7,8 @@ import GUI.shapesGUI.BlockGUI;
 import GUI.shapesGUI.EdgeGUI;
 import GUI.shapesGUI.NodeGUI;
 import GUI.shapesGUI.ShapeGUI;
+import logic.graph_objects.Graph;
+import logic.graph_objects.Node;
 import logic.shapes.Position;
 
 import javax.swing.*;
@@ -79,10 +81,8 @@ public class MainSimulationWindow {
     }
 
     public void addNode(NodeGUI node) {
-        for (NodeGUI n : nodes) {
-            if (hasLineOfSight(node.getPosition(), n.getPosition()))
-                addEdge(node, n);
-        }
+        for (NodeGUI n : nodes)
+            if (shouldAddEdge(node, n)) addEdge(node, n);
 
         nodes.add(node);
         drawingPanel.repaint();
@@ -104,6 +104,26 @@ public class MainSimulationWindow {
         blocks.add(block);
         drawingPanel.repaint();
     }
+    public void removeNode(NodeGUI node) {
+        nodes.remove(node);
+        edges.removeIf(edge -> edge.node1.equals(node) || edge.node2.equals(node));
+        drawingPanel.repaint();
+    }
+    public void removeBlock(BlockGUI block) {
+        blocks.remove(block);
+
+        for (int i = 0; i < nodes.size(); ++i) {
+            NodeGUI node1 = nodes.get(i);
+            for (int j = i+1; j < nodes.size(); ++j) {
+                NodeGUI node2 = nodes.get(j);
+                if (!node1.node.hasNeighbour(node2.node) && shouldAddEdge(node1, node2)) {
+                    addEdge(nodes.get(i), nodes.get(j));
+                }
+            }
+        }
+
+        drawingPanel.repaint();
+    }
 
     public Iterable<ShapeGUI> getShapes() {
         List<ShapeGUI> shapes = new ArrayList<>(blocks);
@@ -112,7 +132,15 @@ public class MainSimulationWindow {
         return shapes;
     }
 
+    public Graph getGraph() {
+        Graph graph = new Graph();
+        for (NodeGUI node : nodes) graph.addNode(node.node);
+        for (EdgeGUI edge : edges) graph.addEdge(edge.node1.node, edge.node2.node);
+        return graph;
+    }
+
     public DrawingPanel getDrawingPanel() { return drawingPanel; }
+    public JFrame getFrame() { return frame; }
 
     public double getHeightAt(double x, double y) {
         double maxHeight = Constants.MINIMUM_HEIGHT - 1;
@@ -122,12 +150,24 @@ public class MainSimulationWindow {
         return maxHeight!=Constants.MINIMUM_HEIGHT-1 ? maxHeight : 0.0;
     }
 
+    public ShapeGUI getShapeAt(int x, int y) {
+        List<ShapeGUI> shapes = new ArrayList<>(nodes);
+        shapes.addAll(blocks);
+
+        for (ShapeGUI shape : shapes)
+            if (shape.contains(x, y)) return shape;
+        return null;
+    }
+
     public boolean hasLineOfSight(Position pos1, Position pos2) {
         for (BlockGUI block : blocks)
             if (block.intersectsLine(pos1, pos2)) return false;
         return true;
     }
 
+    private boolean shouldAddEdge(NodeGUI node1, NodeGUI node2) {
+        return hasLineOfSight(node1.getPosition(), node2.getPosition());
+    }
 
     private void layoutComponents() {
         frame.add(drawingPanel, BorderLayout.CENTER);

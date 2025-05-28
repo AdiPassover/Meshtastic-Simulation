@@ -15,6 +15,7 @@ public class NodeGUI implements ShapeGUI {
     }
 
     public Position getPosition() { return node.position; }
+    public int getId() { return node.id; }
 
 
     @Override

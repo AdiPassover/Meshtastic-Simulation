@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class Graph {
 
-    public final Map<Integer, Node> nodes = new HashMap<>();
+    private final Map<Integer, Node> nodes = new HashMap<>();
     private final Set<Edge> edges = new HashSet<>();
 
     public Graph() {}
@@ -18,7 +18,8 @@ public class Graph {
     public boolean hasNode(Node node) {
         return nodes.containsKey(node.id);
     }
-    public void addEdge(Edge edge) {
+    public void addEdge(Node node1, Node node2) {
+        Edge edge = new Edge(node1, node2);
         edges.add(edge);
         edge.node1.addEdge(edge);
         edge.node2.addEdge(edge);

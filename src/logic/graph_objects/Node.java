@@ -5,15 +5,14 @@ import logic.shapes.Position;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class Node implements Iterable<Edge>, Serializable {
     @Serial private static final long serialVersionUID = 1L;
 
     public final int id;
     private final List<Edge> edges = new ArrayList<>();
+    private final Set<Node> neighbors = new HashSet<>();
 
     public final Position position;
     public final Transmitter transmitter = new Transmitter();
@@ -31,12 +30,13 @@ public class Node implements Iterable<Edge>, Serializable {
     @Override
     public Iterator<Edge> iterator() { return edges.iterator(); }
 
-    public void addEdge(Edge e) { edges.add(e); }
-    public void removeEdge(Edge e) { edges.remove(e); }
+    public void addEdge(Edge e) { edges.add(e); neighbors.add(e.getOther(this)); }
+    public void removeEdge(Edge e) { edges.remove(e); neighbors.remove(e.getOther(this)); }
     public int degree() { return edges.size(); }
 
+    public boolean hasNeighbour(Node other) { return neighbors.contains(other); }
     public Iterable<Node> getNeighbors() {
-        return edges.stream().map(e -> e.getOther(this)).toList();
+        return neighbors;
     }
 
 }

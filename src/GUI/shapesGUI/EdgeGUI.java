@@ -7,13 +7,11 @@ import java.awt.*;
 
 public class EdgeGUI implements ShapeGUI {
 
-    public final Edge edge;
     public final NodeGUI node1, node2;
 
     public EdgeGUI(NodeGUI node1, NodeGUI node2) {
         this.node1 = node1;
         this.node2 = node2;
-        this.edge = new Edge(node1.node, node2.node);
     }
 
 

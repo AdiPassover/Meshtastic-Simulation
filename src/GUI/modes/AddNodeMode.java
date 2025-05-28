@@ -27,7 +27,8 @@ public class AddNodeMode extends Mode {
 
     private void drawPreview(Graphics2D g, int x, int y) {
         int size = Constants.NODE_RADIUS;
-        g.setColor(Constants.NODE_PREVIEW_COLOR);
+        g.setColor(Constants.PREVIEW_COLOR);
+        g.setStroke(Constants.PREVIEW_STROKE);
         g.drawOval(x - size, y - size, 2 * size, 2 * size);
     }
 

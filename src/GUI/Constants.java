@@ -8,12 +8,14 @@ public final class Constants {
     public static final Color NODE_COLOR = Color.BLACK;
     public static final Color NODE_TEXT_COLOR = Color.WHITE;
     public static final Font NODE_FONT = new Font("Arial", Font.BOLD, 17);
-    public static final Color NODE_PREVIEW_COLOR = new Color(102, 197, 225, 242);
 
     public static final Color BLOCK_OUTLINE_COLOR = Color.BLACK;
 
     public static final Color EDGE_COLOR = Color.BLACK;
     public static final Stroke EDGE_STROKE = new BasicStroke(2.0f);
+
+    public static final Color PREVIEW_COLOR = new Color(102, 197, 225, 242);
+    public static final Stroke PREVIEW_STROKE = new BasicStroke(5, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{10f, 10f, 10f, 10f}, 0.0f);
 
 
     public static final int MINIMUM_HEIGHT = -100;
