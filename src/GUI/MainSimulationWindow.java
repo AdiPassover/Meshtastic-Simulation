@@ -4,8 +4,10 @@ import GUI.elevation.ElevationLegend;
 import GUI.modes.Mode;
 import GUI.modes.ModeFactory;
 import GUI.shapesGUI.BlockGUI;
+import GUI.shapesGUI.EdgeGUI;
 import GUI.shapesGUI.NodeGUI;
 import GUI.shapesGUI.ShapeGUI;
+import logic.shapes.Position;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,6 +28,7 @@ public class MainSimulationWindow {
     private Mode currentMode = modes.BLANK;
 
     private final List<NodeGUI> nodes = new ArrayList<>();
+    private final List<EdgeGUI> edges = new ArrayList<>();
     private final List<BlockGUI> blocks = new ArrayList<>();
 
 
@@ -76,21 +79,42 @@ public class MainSimulationWindow {
     }
 
     public void addNode(NodeGUI node) {
+        for (NodeGUI n : nodes) {
+            if (hasLineOfSight(node.getPosition(), n.getPosition()))
+                addEdge(node, n);
+        }
+
         nodes.add(node);
         drawingPanel.repaint();
     }
+    public void addEdge(NodeGUI node1, NodeGUI node2) {
+        EdgeGUI edge = new EdgeGUI(node1, node2);
+        edges.add(edge);
+        drawingPanel.repaint();
+    }
     public void addBlock(BlockGUI block) {
+        for (int i = 0; i < edges.size(); ++i) {
+            EdgeGUI e = edges.get(i);
+            Position pos1 = e.node1.getPosition(), pos2 = e.node2.getPosition();
+            if (block.intersectsLine(pos1, pos2)) {
+                edges.remove(i--);
+            }
+        }
+
         blocks.add(block);
         drawingPanel.repaint();
     }
 
     public Iterable<ShapeGUI> getShapes() {
         List<ShapeGUI> shapes = new ArrayList<>(blocks);
+        shapes.addAll(edges);
         shapes.addAll(nodes);
         return shapes;
     }
 
-    public double getHeight(double x, double y) {
+    public DrawingPanel getDrawingPanel() { return drawingPanel; }
+
+    public double getHeightAt(double x, double y) {
         double maxHeight = Constants.MINIMUM_HEIGHT - 1;
         for (BlockGUI b : blocks)
             if (b.contains((int)x, (int)y)) maxHeight = Math.max(maxHeight, b.getHeight());
@@ -98,40 +122,13 @@ public class MainSimulationWindow {
         return maxHeight!=Constants.MINIMUM_HEIGHT-1 ? maxHeight : 0.0;
     }
 
-
-    private void highlightButton(JButton button) {
-        button.setBackground(Constants.CHOSEN_BUTTON_COLOR); // Light blue background
-        button.setForeground(Color.BLACK);
-
-        for (Component comp : controlPanel.getComponents()) {
-            if (comp instanceof JButton otherButton && comp != button) {
-                otherButton.setBackground(null);
-                otherButton.setForeground(null);
-            }
-        }
+    public boolean hasLineOfSight(Position pos1, Position pos2) {
+        for (BlockGUI block : blocks)
+            if (block.intersectsLine(pos1, pos2)) return false;
+        return true;
     }
-    private JButton createButton(String text, ActionListener listener, Dimension size) {
-        JButton button = new JButton(text);
-        button.setPreferredSize(size);
-        button.addActionListener(listener);
-        return button;
-    }
-    private JButton createModeChangeButton(String text, Mode mode, Dimension size) {
-        JButton button = new JButton(text);
-        button.setPreferredSize(size);
-        button.addActionListener(e -> {
-            if (button.getBackground() == Constants.CHOSEN_BUTTON_COLOR) {
-                setCurrentMode(modes.BLANK);
-                button.setBackground(null);
-                button.setForeground(null);
-            } else {
-                setCurrentMode(mode);
-                highlightButton(button);
-            }
 
-        });
-        return button;
-    }
+
     private void layoutComponents() {
         frame.add(drawingPanel, BorderLayout.CENTER);
 
@@ -177,10 +174,38 @@ public class MainSimulationWindow {
 
         frame.add(controlPanel, BorderLayout.EAST);
     }
+    private void highlightButton(JButton button) {
+        button.setBackground(Constants.CHOSEN_BUTTON_COLOR); // Light blue background
+        button.setForeground(Color.BLACK);
 
+        for (Component comp : controlPanel.getComponents()) {
+            if (comp instanceof JButton otherButton && comp != button) {
+                otherButton.setBackground(null);
+                otherButton.setForeground(null);
+            }
+        }
+    }
+    private JButton createButton(String text, ActionListener listener, Dimension size) {
+        JButton button = new JButton(text);
+        button.setPreferredSize(size);
+        button.addActionListener(listener);
+        return button;
+    }
+    private JButton createModeChangeButton(String text, Mode mode, Dimension size) {
+        JButton button = new JButton(text);
+        button.setPreferredSize(size);
+        button.addActionListener(e -> {
+            if (button.getBackground() == Constants.CHOSEN_BUTTON_COLOR) {
+                setCurrentMode(modes.BLANK);
+                button.setBackground(null);
+                button.setForeground(null);
+            } else {
+                setCurrentMode(mode);
+                highlightButton(button);
+            }
 
-    public DrawingPanel getDrawingPanel() {
-        return drawingPanel;
+        });
+        return button;
     }
 
 }
