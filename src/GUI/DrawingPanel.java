@@ -1,5 +1,6 @@
 package GUI;
 
+import GUI.elevation.ElevationSlider;
 import GUI.shapesGUI.ShapeGUI;
 
 import javax.swing.*;
@@ -10,6 +11,7 @@ public class DrawingPanel extends JPanel {
 
     private final MainSimulationWindow mainWindow;
     private Consumer<Graphics2D> previewDrawer = null;
+    private final Color backgroundColor = ElevationSlider.getElevationColor(0.0);
 
     public DrawingPanel(MainSimulationWindow mainWindow) {
         super();
@@ -19,6 +21,9 @@ public class DrawingPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        g.setColor(backgroundColor);
+        g.fillRect(0, 0, getWidth(), getHeight());
 
         for (ShapeGUI shape : mainWindow.getShapes()) {
             shape.drawShape((Graphics2D) g);

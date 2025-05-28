@@ -1,5 +1,8 @@
 package GUI.shapesGUI;
 
+import GUI.Constants;
+import GUI.elevation.ElevationSlider;
+
 import java.awt.*;
 
 public class BlockGUI implements ShapeGUI {
@@ -11,7 +14,7 @@ public class BlockGUI implements ShapeGUI {
     public BlockGUI(Polygon polygon, double height) {
         this.polygon = polygon;
         this.height = height;
-        this.color = Color.BLACK; // TODO decide color by height
+        this.color = ElevationSlider.getElevationColor(height);
     }
 
     public double getHeight() {
@@ -27,7 +30,8 @@ public class BlockGUI implements ShapeGUI {
     public void drawShape(Graphics2D g) {
         g.setColor(color);
         g.fill(polygon);
-        g.setColor(Color.BLACK);
+
+        g.setColor(Constants.BLOCK_OUTLINE_COLOR);
         g.draw(polygon);
     }
 

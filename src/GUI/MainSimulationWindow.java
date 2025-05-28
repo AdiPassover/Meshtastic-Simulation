@@ -1,5 +1,6 @@
 package GUI;
 
+import GUI.elevation.ElevationLegend;
 import GUI.modes.Mode;
 import GUI.modes.ModeFactory;
 import GUI.shapesGUI.BlockGUI;
@@ -24,12 +25,12 @@ public class MainSimulationWindow {
     private final ModeFactory modes = new ModeFactory(this);
     private Mode currentMode = modes.BLANK;
 
-    List<NodeGUI> nodes = new ArrayList<>();
-    List<BlockGUI> blocks = new ArrayList<>();
+    private final List<NodeGUI> nodes = new ArrayList<>();
+    private final List<BlockGUI> blocks = new ArrayList<>();
 
 
     public MainSimulationWindow() {
-        frame = new JFrame("Simulation App");
+        frame = new JFrame("Meshtastic Simulation");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH); // Fullscreen
         frame.setLayout(new BorderLayout());
@@ -37,11 +38,10 @@ public class MainSimulationWindow {
         drawingPanel = new DrawingPanel(this);
         drawingPanel.setBackground(Color.WHITE);
         drawingPanel.addMouseListener(new MouseAdapter() {
-            @Override public void mousePressed(MouseEvent e) {
-                currentMode.mouseClick(e.getX(), e.getY());
-            }
-            @Override public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON3) {
+            @Override public void mouseReleased(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    currentMode.mouseClick(e.getX(), e.getY());
+                } else if (e.getButton() == MouseEvent.BUTTON3) {
                     currentMode.mouseRightClick(e.getX(), e.getY());
                 }
             }
@@ -66,7 +66,7 @@ public class MainSimulationWindow {
     }
 
 
-    private void setCurrentMode(Mode mode) { currentMode.close(); currentMode = mode; }
+    private void setCurrentMode(Mode mode) { currentMode.close(); currentMode = mode; currentMode.open(); }
 
     private void startButton() {
         // TODO
@@ -91,10 +91,11 @@ public class MainSimulationWindow {
     }
 
     public double getHeight(double x, double y) {
-        double maxHeight = 0;
+        double maxHeight = Constants.MINIMUM_HEIGHT - 1;
         for (BlockGUI b : blocks)
             if (b.contains((int)x, (int)y)) maxHeight = Math.max(maxHeight, b.getHeight());
-        return maxHeight;
+
+        return maxHeight!=Constants.MINIMUM_HEIGHT-1 ? maxHeight : 0.0;
     }
 
 
@@ -163,8 +164,20 @@ public class MainSimulationWindow {
         gbc.gridwidth = 2;
         controlPanel.add(Box.createVerticalGlue(), gbc);
 
+        gbc.gridy++;
+        gbc.weighty = 0;
+        gbc.fill = GridBagConstraints.NONE;
+        JLabel elevationLabel = new JLabel("Elevation");
+        elevationLabel.setFont(new Font("Arial", Font.BOLD, 17));
+        elevationLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        controlPanel.add(elevationLabel, gbc);
+        gbc.gridy++;
+        gbc.insets = new Insets(2, 10, 5, 10);
+        controlPanel.add(new ElevationLegend(new Dimension(100, 220)), gbc);
+
         frame.add(controlPanel, BorderLayout.EAST);
     }
+
 
     public DrawingPanel getDrawingPanel() {
         return drawingPanel;

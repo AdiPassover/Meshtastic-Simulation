@@ -1,6 +1,7 @@
 package GUI.modes;
 
 import GUI.Constants;
+import GUI.elevation.ElevationSlider;
 import GUI.MainSimulationWindow;
 import GUI.shapesGUI.BlockGUI;
 
@@ -13,6 +14,13 @@ public class AddBlockMode extends Mode {
     public AddBlockMode(MainSimulationWindow mainWindow) { super(mainWindow); }
 
     private final List<Point> points = new ArrayList<>();
+    private boolean isChoosingHeight = false;
+
+    @Override
+    public void open() {
+        points.clear();
+        isChoosingHeight = false;
+    }
 
     @Override
     public void mouseClick(int x, int y) {
@@ -23,22 +31,26 @@ public class AddBlockMode extends Mode {
     public void mouseRightClick(int x, int y) {
         if (points.size() < 3) return;
 
-       // TODO prompt height
-        double height = 0.0;
+        isChoosingHeight = true;
 
-        int[][] pointsArray = new int [2] [points.size()];
-        for (int i = 0; i < points.size(); i++) {
-            pointsArray[0][i] = points.get(i).x;
-            pointsArray[1][i] = points.get(i).y;
-        }
-        Polygon polygon = new Polygon(pointsArray[0], pointsArray[1], points.size());
-        mainWindow.addBlock(new BlockGUI(polygon, height));
+        ElevationSlider.promptHeightSlider(height -> {
+            int[][] pointsArray = new int[2][points.size()];
+            for (int i = 0; i < points.size(); i++) {
+                pointsArray[0][i] = points.get(i).x;
+                pointsArray[1][i] = points.get(i).y;
+            }
 
-        close();
+            Polygon polygon = new Polygon(pointsArray[0], pointsArray[1], points.size());
+            mainWindow.addBlock(new BlockGUI(polygon, height));
+
+            close();
+        });
     }
+
 
     @Override
     public void mouseHover(int x, int y) {
+        if (isChoosingHeight) return;
         mainWindow.getDrawingPanel().setPreview(g -> {
             drawPreview(g, x, y);
         });
@@ -61,6 +73,7 @@ public class AddBlockMode extends Mode {
 
     @Override
     public void close() {
+        isChoosingHeight = false;
         mainWindow.getDrawingPanel().clearPreview();
         points.clear();
     }

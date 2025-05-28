@@ -11,6 +11,8 @@ public abstract class Mode {
     public abstract void mouseClick(int x, int y);
     public abstract void mouseHover(int x, int y);
     public void mouseRightClick(int x, int y) {}
+
+    public void open() {}
     public void close() {}
 
 }
