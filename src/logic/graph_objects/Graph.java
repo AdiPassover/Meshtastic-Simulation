@@ -1,11 +1,8 @@
 package logic.graph_objects;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-public class Graph {
+public class Graph implements Iterable<Node> {
 
     private final Map<Integer, Node> nodes = new HashMap<>();
     private final Set<Edge> edges = new HashSet<>();
@@ -23,6 +20,13 @@ public class Graph {
         edges.add(edge);
         edge.node1.addEdge(edge);
         edge.node2.addEdge(edge);
+    }
+
+    public int size() { return nodes.size(); }
+
+    @Override
+    public Iterator<Node> iterator() {
+        return nodes.values().iterator();
     }
 
 }

@@ -1,6 +1,6 @@
 package logic.graph_objects;
 
-import logic.communication.Transmitter;
+import logic.communication.transmitters.Transmitter;
 import logic.shapes.Position;
 
 import java.io.Serial;
@@ -15,7 +15,7 @@ public class Node implements Iterable<Edge>, Serializable {
     private final Set<Node> neighbors = new HashSet<>();
 
     public final Position position;
-    public final Transmitter transmitter = new Transmitter();
+    private Transmitter transmitter;
 
 
     public Node(int id, Position pos) {
@@ -26,6 +26,9 @@ public class Node implements Iterable<Edge>, Serializable {
     public double x() { return position.x; }
     public double y() { return position.y; }
     public double distanceTo(Node other) { return position.distance(other.position); }
+
+    public Transmitter getTransmitter() { return transmitter; }
+    public void setTransmitter(Transmitter t) { transmitter = t; }
 
     @Override
     public Iterator<Edge> iterator() { return edges.iterator(); }
