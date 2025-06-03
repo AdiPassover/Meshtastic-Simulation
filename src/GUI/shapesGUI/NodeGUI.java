@@ -5,8 +5,9 @@ import logic.graph_objects.Node;
 import logic.shapes.Position;
 
 import java.awt.*;
+import java.io.Serializable;
 
-public class NodeGUI implements ShapeGUI {
+public class NodeGUI implements ShapeGUI, Serializable {
 
     public final Node node;
 
@@ -20,7 +21,7 @@ public class NodeGUI implements ShapeGUI {
 
     @Override
     public boolean contains(int x, int y) {
-        return node.position.distance2D() <= Constants.NODE_RADIUS;
+        return node.position.distance2D(x, y) <= Constants.NODE_RADIUS;
     }
 
 

@@ -7,8 +7,8 @@ import GUI.shapesGUI.BlockGUI;
 import GUI.shapesGUI.EdgeGUI;
 import GUI.shapesGUI.NodeGUI;
 import GUI.shapesGUI.ShapeGUI;
+import logic.Storage;
 import logic.graph_objects.Graph;
-import logic.graph_objects.Node;
 import logic.shapes.Position;
 
 import javax.swing.*;
@@ -24,7 +24,7 @@ public class MainSimulationWindow {
     private final JFrame frame;
     private final DrawingPanel drawingPanel;
     private final JPanel controlPanel;
-    private final JButton startButton,addNodeButton, addBlockButton, editButton, scheduleButton;
+    private final JButton startButton,addNodeButton, addBlockButton, saveButton, loadButton;
 
     private final ModeFactory modes = new ModeFactory(this);
     private Mode currentMode = modes.BLANK;
@@ -63,10 +63,10 @@ public class MainSimulationWindow {
         startButton = createButton("Start", e -> startButton(), BIG_BUTTON_SIZE);
         addNodeButton = createModeChangeButton("Add Node", modes.ADD_NODE ,SMALL_BUTTON_SIZE);
         addBlockButton = createModeChangeButton("Add Block", modes.ADD_BLOCK, SMALL_BUTTON_SIZE);
-        editButton = createModeChangeButton("Edit", modes.EDIT, SMALL_BUTTON_SIZE);
-        scheduleButton = createButton("Schedule", e -> scheduleButton(), SMALL_BUTTON_SIZE);
+        saveButton = createButton("Save", e -> Storage.save(nodes, blocks), SMALL_BUTTON_SIZE);
+        loadButton = createButton("Load", e -> loadButton(), SMALL_BUTTON_SIZE);
 
-        layoutComponents();
+        layoutBuildComponents();
         frame.setVisible(true);
     }
 
@@ -76,8 +76,9 @@ public class MainSimulationWindow {
     private void startButton() {
         // TODO
     }
-    private void scheduleButton() {
-        // TODO
+    private void loadButton() {
+        List<ShapeGUI> shapes = Storage.load();
+        if (shapes != null) setShapes(shapes);
     }
 
     public void addNode(NodeGUI node) {
@@ -132,6 +133,37 @@ public class MainSimulationWindow {
         return shapes;
     }
 
+    public void clear() {
+        nodes.clear();
+        edges.clear();
+        blocks.clear();
+        drawingPanel.repaint();
+    }
+
+    public void setShapes(List<ShapeGUI> shapes) {
+        List<NodeGUI> nodes = new ArrayList<>();
+        List<BlockGUI> blocks = new ArrayList<>();
+        for (ShapeGUI shape : shapes) {
+            if (shape instanceof NodeGUI node) nodes.add(node);
+            else if (shape instanceof BlockGUI block) blocks.add(block);
+        }
+        setShapes(nodes, blocks);
+    }
+
+    public void setShapes(List<NodeGUI> nodes, List<BlockGUI> blocks) {
+        clear();
+        this.nodes.addAll(nodes);
+        this.blocks.addAll(blocks);
+
+        for (int i = 0; i < nodes.size(); ++i) {
+            NodeGUI node1 = nodes.get(i);
+            for (int j = i + 1; j < nodes.size(); ++j) {
+                NodeGUI node2 = nodes.get(j);
+                if (shouldAddEdge(node1, node2)) addEdge(node1, node2);
+            }
+        }
+    }
+
     public Graph getGraph() {
         Graph graph = new Graph();
         for (NodeGUI node : nodes) graph.addNode(node.node);
@@ -169,7 +201,7 @@ public class MainSimulationWindow {
         return hasLineOfSight(node1.getPosition(), node2.getPosition());
     }
 
-    private void layoutComponents() {
+    private void layoutBuildComponents() {
         frame.add(drawingPanel, BorderLayout.CENTER);
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -189,10 +221,10 @@ public class MainSimulationWindow {
 
         gbc.gridx = 0;
         gbc.gridy++;
-        controlPanel.add(editButton, gbc);
+        controlPanel.add(saveButton, gbc);
 
         gbc.gridx = 1;
-        controlPanel.add(scheduleButton, gbc);
+        controlPanel.add(loadButton, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;

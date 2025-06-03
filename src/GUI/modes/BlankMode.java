@@ -19,27 +19,23 @@ public class BlankMode extends Mode {
         ShapeGUI shape = mainWindow.getShapeAt(x, y);
         if (shape == null) return;
 
-        if (shape instanceof BlockGUI b) blockOptions();
-        else if (shape instanceof NodeGUI n) {
-            System.out.println("Node right-clicked: " + n.getId());
-            showNodePopup(n, x, y);
-        }
-    }
-
-    private void blockOptions() {
-
-    }
-
-    private void nodeOptions() {
-
+        if (shape instanceof BlockGUI b) showBlockPopup(b, x, y);
+        else if (shape instanceof NodeGUI n) showNodePopup(n, x, y);
     }
 
     private void showNodePopup(NodeGUI node, int x, int y) {
         JPopupMenu popup = new JPopupMenu();
 
-        JMenuItem editItem = new JMenuItem("Edit");
-        editItem.addActionListener(e -> {
-            System.out.println("Edit node: " + node.getId());
+        JMenuItem transmitterItem = new JMenuItem("Change Transmitter");
+        transmitterItem.addActionListener(e -> {
+            System.out.println("Transmitter change requested for node: " + node.getId());
+            // TODO
+        });
+
+        JMenuItem scheduleItem = new JMenuItem("Schedule");
+        scheduleItem.addActionListener(e -> {
+            System.out.println("Schedule change requested for node: " + node.getId());
+            // TODO
         });
 
         JMenuItem removeItem = new JMenuItem("Remove");
@@ -47,9 +43,20 @@ public class BlankMode extends Mode {
             mainWindow.removeNode(node);
         });
 
-        popup.add(editItem);
+        popup.add(transmitterItem);
+        popup.add(scheduleItem);
         popup.add(removeItem);
 
+        popup.show(mainWindow.getFrame(), x, y);
+    }
+
+    private void showBlockPopup(BlockGUI block, int x, int y) {
+        JPopupMenu popup = new JPopupMenu();
+        JMenuItem removeItem = new JMenuItem("Remove");
+        removeItem.addActionListener(e -> {
+            mainWindow.removeBlock(block);
+        });
+        popup.add(removeItem);
         popup.show(mainWindow.getFrame(), x, y);
     }
 

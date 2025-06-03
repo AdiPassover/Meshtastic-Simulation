@@ -23,8 +23,11 @@ public class Position implements Serializable {
     public double distance(Position other) {
         return distance(other.x, other.y, other.z);
     }
-    public double distance2D() {
-        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+    public double distance2D(int x1, int y1) {
+        return Math.sqrt(Math.pow(x1 - x, 2) + Math.pow(y1 - y, 2));
+    }
+    public double distance2D(Position other) {
+        return Math.sqrt(Math.pow(other.x - x, 2) + Math.pow(other.y - y, 2));
     }
 
     @Override

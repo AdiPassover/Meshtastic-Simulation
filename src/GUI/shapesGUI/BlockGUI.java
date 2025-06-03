@@ -7,8 +7,9 @@ import logic.shapes.Position;
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 
-public class BlockGUI implements ShapeGUI {
+public class BlockGUI implements ShapeGUI, Serializable {
 
     private final Polygon polygon;
     private final double height;
