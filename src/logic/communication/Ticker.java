@@ -1,6 +1,5 @@
 package logic.communication;
 
-import GUI.MainSimulationWindow;
 import logic.PhysicsEngine;
 import logic.graph_objects.Graph;
 import logic.graph_objects.Node;
@@ -13,21 +12,25 @@ public class Ticker {
     private final Graph graph;
     private long currentTick;
 
+    private long collisionCount = 0;
+
     public Ticker(Graph graph) {
         this.graph = graph;
         this.currentTick = 0L;
     }
 
+    public long getCurrentTick() { return currentTick; }
+
+    // TODO count collisions, successful transmissions, latency, etc.
 
     public void tick() {
 
         // 1. Transmit messages from nodes
         List<Transmission> activeTransmissions = new ArrayList<>();
         for (Node node : graph) {
-            Message msg = node.getTransmitter().transmit(currentTick);
-            if (msg == null) continue;
-            Transmission tx = new Transmission(msg, node);
-            activeTransmissions.add(tx);
+            Transmission transmission = node.getTransmitter().transmit(currentTick);
+            if (transmission == null) continue;
+            activeTransmissions.add(transmission);
         }
 
         // 2. Deliver transmissions
@@ -57,13 +60,15 @@ public class Ticker {
 
             if (transmissions.size() == 1) {
                 receiver.getTransmitter().receive(transmissions.remove(0), currentTick);
-            } else if (transmissions.size() > 1) {
-                // TODO handle collisions
+            } else if (transmissions.size() > 1) { // Collision detected
+                collisionCount++;
+                double prob = 1.0 / transmissions.size();
+                for (Transmission tx : transmissions)
+                    if (Math.random() < prob) receiver.getTransmitter().receive(tx, currentTick);
             }
         }
 
         currentTick++;
     }
-
 
 }

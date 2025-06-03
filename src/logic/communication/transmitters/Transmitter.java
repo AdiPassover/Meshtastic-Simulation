@@ -13,15 +13,15 @@ public abstract class Transmitter {
     }
 
     /**
-     * Called once per simulation tick
+     * Called once per simulation tick. Return null if no message is to be sent.
      */
-    public abstract Message transmit(long currentTick);
+    public abstract Transmission transmit(long currentTick);
 
     /** Called when the node receives a message */
     public abstract void receive(Transmission msg, long currentTick);
 
     /** Called before simulation starts to schedule messages */
-    public abstract void scheduleMessage(String payload, long sendTick);
+    public abstract void scheduleMessage(String payload, int destinationId, long sendTick);
     public abstract void clearSchedule();
 
 }
