@@ -8,4 +8,8 @@ public class PhysicsEngine {
         return 0.5;
     }
 
+    public double probabilityOfSurvivingCollision(int numMessagesCollided) {
+        return 1.0 / numMessagesCollided;
+    }
+
 }

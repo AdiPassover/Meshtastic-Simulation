@@ -20,6 +20,7 @@ public final class Constants {
     public static final Stroke PREVIEW_STROKE = new BasicStroke(5, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{10f, 10f, 10f, 10f}, 0.0f);
 
 
+    // Height constants for the slider
     public static final int MINIMUM_HEIGHT = -100;
     public static final int BLUE_HEIGHT = -30;
     public static final int GREEN_HEIGHT = -10;

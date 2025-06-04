@@ -8,6 +8,7 @@ import GUI.shapesGUI.EdgeGUI;
 import GUI.shapesGUI.NodeGUI;
 import GUI.shapesGUI.ShapeGUI;
 import logic.Storage;
+import logic.communication.Ticker;
 import logic.graph_objects.Graph;
 import logic.shapes.Position;
 
@@ -24,14 +25,18 @@ public class MainSimulationWindow {
     private final JFrame frame;
     private final DrawingPanel drawingPanel;
     private final JPanel controlPanel;
-    private final JButton startButton,addNodeButton, addBlockButton, saveButton, loadButton;
+    private final JButton startButton,addNodeButton, addBlockButton, saveButton, loadButton, nextButton, playButton,
+            pauseButton, skipButton;
 
     private final ModeFactory modes = new ModeFactory(this);
     private Mode currentMode = modes.BLANK;
+    private boolean isBuilding = true; // Used to track if we are in building mode
 
     private final List<NodeGUI> nodes = new ArrayList<>();
     private final List<EdgeGUI> edges = new ArrayList<>();
     private final List<BlockGUI> blocks = new ArrayList<>();
+
+    private Ticker ticker;
 
 
     public MainSimulationWindow() {
@@ -66,16 +71,37 @@ public class MainSimulationWindow {
         saveButton = createButton("Save", e -> saveButton(), SMALL_BUTTON_SIZE);
         loadButton = createButton("Load", e -> loadButton(), SMALL_BUTTON_SIZE);
 
+        nextButton = createButton("Next", e -> nextButton(), SMALL_BUTTON_SIZE);
+        playButton = createButton("Play", e -> playButton(), SMALL_BUTTON_SIZE);
+        pauseButton = createButton("Pause", e -> pauseButton(), SMALL_BUTTON_SIZE);
+        skipButton = createButton("Skip to End", e -> skipButton(), SMALL_BUTTON_SIZE);
+
         layoutBuildComponents();
         frame.setVisible(true);
     }
 
 
     private void setCurrentMode(Mode mode) { currentMode.close(); currentMode = mode; currentMode.open(); }
+    public boolean isBuilding() { return isBuilding; }
 
     private void startButton() {
-        // TODO
+        isBuilding = !isBuilding;
+        controlPanel.removeAll();
+
+        if (isBuilding) {
+            startButton.setText("Start");
+            layoutBuildComponents();
+            ticker = null;
+        } else {
+            startButton.setText("Stop");
+            layoutSimulationComponents();
+            ticker = new Ticker(getGraph());
+        }
+
+        controlPanel.revalidate();
+        controlPanel.repaint();
     }
+
     private void saveButton() {
         String filePath = PathChooser.writePath(Constants.PRESETS_DIRECTORY);
         if (filePath != null) Storage.saveTo(nodes, blocks, filePath);
@@ -86,6 +112,20 @@ public class MainSimulationWindow {
         List<ShapeGUI> shapes = Storage.loadFrom(filePath);
         if (shapes != null) setShapes(shapes);
     }
+    private void nextButton() {
+        // TODO
+        ticker.tick();
+    }
+    private void playButton() {
+        // TODO
+    }
+    private void pauseButton() {
+        // TODO
+    }
+    private void skipButton() {
+        // TODO
+    }
+
 
     public void addNode(NodeGUI node) {
         for (NodeGUI n : nodes)
@@ -252,6 +292,55 @@ public class MainSimulationWindow {
 
         frame.add(controlPanel, BorderLayout.EAST);
     }
+    private void layoutSimulationComponents() {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        controlPanel.add(startButton, gbc);
+
+        gbc.gridwidth = 1;
+        gbc.gridy++;
+        controlPanel.add(nextButton, gbc);
+
+        gbc.gridx = 1;
+        controlPanel.add(playButton, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        controlPanel.add(pauseButton, gbc);
+
+        gbc.gridx = 1;
+        controlPanel.add(skipButton, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        JLabel sliderLabel = new JLabel("Speed:");
+        sliderLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        controlPanel.add(sliderLabel, gbc);
+
+        gbc.gridy++;
+        int sliderMin = 1;
+        int sliderMax = 20;
+        double realMin = 0.1;
+        double realMax = 2.0;
+
+        JSlider speedSlider = new JSlider(sliderMin, sliderMax, 10); // initial value = 1.0
+
+        speedSlider.addChangeListener(e -> {
+            int sliderValue = speedSlider.getValue();
+            double realValue = realMin + (realMax - realMin) * (sliderValue - sliderMin) / (sliderMax - sliderMin);
+        });
+        speedSlider.setMajorTickSpacing(10);
+        speedSlider.setPaintTicks(true);
+        speedSlider.setPaintLabels(true);
+        controlPanel.add(speedSlider, gbc);
+    }
+
     private void highlightButton(JButton button) {
         button.setBackground(Constants.CHOSEN_BUTTON_COLOR); // Light blue background
         button.setForeground(Color.BLACK);

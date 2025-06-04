@@ -62,7 +62,7 @@ public class Ticker {
                 receiver.getTransmitter().receive(transmissions.remove(0), currentTick);
             } else if (transmissions.size() > 1) { // Collision detected
                 collisionCount++;
-                double prob = 1.0 / transmissions.size();
+                double prob = physics.probabilityOfSurvivingCollision(transmissions.size());
                 for (Transmission tx : transmissions)
                     if (Math.random() < prob) receiver.getTransmitter().receive(tx, currentTick);
             }
