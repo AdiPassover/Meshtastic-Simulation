@@ -11,13 +11,13 @@ public class DeadTransmitter extends Transmitter {
 
 
     @Override
-    public Transmission transmit(long currentTick) { return null; }
+    public Transmission transmit(int currentTick) { return null; }
 
     @Override
-    public void receive(Transmission msg, long currentTick) {}
+    public void receive(Transmission msg, int currentTick) {}
 
     @Override
-    public void scheduleMessage(String payload, int destinationId, long sendTick) {}
+    public void scheduleMessage(String payload, int destinationId, int sendTick) {}
 
     @Override
     public void clearSchedule() {}

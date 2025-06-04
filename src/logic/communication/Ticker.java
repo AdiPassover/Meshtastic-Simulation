@@ -1,6 +1,8 @@
 package logic.communication;
 
-import logic.PhysicsEngine;
+import logic.Statistics;
+import logic.physics.Block;
+import logic.physics.PhysicsEngine;
 import logic.graph_objects.Graph;
 import logic.graph_objects.Node;
 
@@ -8,20 +10,22 @@ import java.util.*;
 
 public class Ticker {
 
-    private final PhysicsEngine physics = new PhysicsEngine();
+    private final PhysicsEngine physics;
     private final Graph graph;
     private long currentTick;
 
     private long collisionCount = 0;
 
-    public Ticker(Graph graph) {
+    public Ticker(Graph graph, List<Block> blocks) {
         this.graph = graph;
-        this.currentTick = 0L;
+        this.currentTick = 0;
+        this.physics = new PhysicsEngine(blocks);
+        this.stats = new Statistics();
     }
 
-    public long getCurrentTick() { return currentTick; }
+    public int getCurrentTick() { return currentTick; }
 
-    // TODO count collisions, successful transmissions, latency, etc.
+    public Statistics getStatistics() { return stats; }
 
     public void tick() {
 
@@ -69,6 +73,12 @@ public class Ticker {
         }
 
         currentTick++;
+    }
+
+    public boolean isFinished() {
+        for (Node node : graph)
+            if (!node.getTransmitter().isScheduleEmpty()) return false;
+        return true;
     }
 
 }

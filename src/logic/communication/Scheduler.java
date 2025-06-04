@@ -21,7 +21,7 @@ public class Scheduler {
                 String[] parts = line.split(",");
                 if (parts.length != 3) continue; // Skip invalid lines
 
-                long sendTick = Long.parseLong(parts[Constants.CSV_TICK_COL].trim());
+                int sendTick = Integer.parseInt(parts[Constants.CSV_TICK_COL].trim());
                 String payload = parts[Constants.CSV_PAYLOAD_COL].trim();
                 int receiverId = Integer.parseInt(parts[Constants.CSV_RECV_COL].trim());
 

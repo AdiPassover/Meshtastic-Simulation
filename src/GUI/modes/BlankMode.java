@@ -46,9 +46,7 @@ public class BlankMode extends Mode {
                     transmitterNames[0]);
             if (chosenTypeStr == null) return; // User cancelled
             TransmitterType chosenType = TransmitterType.fromString(chosenTypeStr);
-            Transmitter newTransmitter = TransmittersFactory.createTransmitter(chosenType, node.node);
-            node.node.setTransmitter(newTransmitter);
-            node.setColor(chosenType.getColor());
+            node.setTransmitter(chosenType);
             mainWindow.getDrawingPanel().repaint();
         });
 

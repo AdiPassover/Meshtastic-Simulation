@@ -42,4 +42,9 @@ public class Node implements Iterable<Edge>, Serializable {
         return neighbors;
     }
 
+    @Override
+    public String toString() {
+        return "Node{id=" + id + ", position=" + position + ", degree=" + degree() + "}";
+    }
+
 }

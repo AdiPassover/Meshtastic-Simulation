@@ -10,6 +10,7 @@ import GUI.shapesGUI.ShapeGUI;
 import logic.Storage;
 import logic.communication.Ticker;
 import logic.graph_objects.Graph;
+import logic.physics.Block;
 import logic.shapes.Position;
 
 import javax.swing.*;
@@ -31,6 +32,7 @@ public class MainSimulationWindow {
     private final ModeFactory modes = new ModeFactory(this);
     private Mode currentMode = modes.BLANK;
     private boolean isBuilding = true; // Used to track if we are in building mode
+    private boolean isPlaying = false;
 
     private final List<NodeGUI> nodes = new ArrayList<>();
     private final List<EdgeGUI> edges = new ArrayList<>();
@@ -95,7 +97,10 @@ public class MainSimulationWindow {
         } else {
             startButton.setText("Stop");
             layoutSimulationComponents();
-            ticker = new Ticker(getGraph());
+
+            List<Block> logicBlocks = new ArrayList<>();
+            for (BlockGUI block : blocks) logicBlocks.add(block.block);
+            ticker = new Ticker(getGraph(), logicBlocks);
         }
 
         controlPanel.revalidate();
@@ -113,18 +118,22 @@ public class MainSimulationWindow {
         if (shapes != null) setShapes(shapes);
     }
     private void nextButton() {
-        // TODO
         ticker.tick();
     }
     private void playButton() {
-        // TODO
+        isPlaying = true;
+        ticker.getStatistics().printStats();
     }
     private void pauseButton() {
-        // TODO
+        isPlaying = false;
     }
     private void skipButton() {
-        // TODO
+        while (!ticker.isFinished()) {
+            ticker.tick();
+        }
     }
+
+
 
 
     public void addNode(NodeGUI node) {
