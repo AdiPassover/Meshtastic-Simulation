@@ -8,6 +8,10 @@ public abstract class Transmitter {
 
     protected Node owner;
 
+    public Transmitter(Node owner) {
+        this.owner = owner;
+    }
+
     public void setOwner(Node node) {
         this.owner = node;
     }

@@ -2,6 +2,7 @@ package logic.communication.transmitters;
 
 import logic.communication.Message;
 import logic.communication.Transmission;
+import logic.graph_objects.Node;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +10,13 @@ import java.util.Map;
 public class FloodingTransmitter extends Transmitter {
 
     private final Map<Long, Message> scheduledMessages = new HashMap<>();
+
     private static final int DEFAULT_TTL = 5;
+
+
+    public FloodingTransmitter(Node owner) {
+        super(owner); // Owner will be set later
+    }
 
 
     @Override

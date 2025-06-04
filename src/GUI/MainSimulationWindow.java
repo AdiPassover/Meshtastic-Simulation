@@ -63,7 +63,7 @@ public class MainSimulationWindow {
         startButton = createButton("Start", e -> startButton(), BIG_BUTTON_SIZE);
         addNodeButton = createModeChangeButton("Add Node", modes.ADD_NODE ,SMALL_BUTTON_SIZE);
         addBlockButton = createModeChangeButton("Add Block", modes.ADD_BLOCK, SMALL_BUTTON_SIZE);
-        saveButton = createButton("Save", e -> Storage.save(nodes, blocks), SMALL_BUTTON_SIZE);
+        saveButton = createButton("Save", e -> saveButton(), SMALL_BUTTON_SIZE);
         loadButton = createButton("Load", e -> loadButton(), SMALL_BUTTON_SIZE);
 
         layoutBuildComponents();
@@ -76,8 +76,14 @@ public class MainSimulationWindow {
     private void startButton() {
         // TODO
     }
+    private void saveButton() {
+        String filePath = PathChooser.writePath(Constants.PRESETS_DIRECTORY);
+        if (filePath != null) Storage.saveTo(nodes, blocks, filePath);
+    }
     private void loadButton() {
-        List<ShapeGUI> shapes = Storage.load();
+        String filePath = PathChooser.choosePath(Constants.PRESETS_DIRECTORY);
+        if (filePath == null) return;
+        List<ShapeGUI> shapes = Storage.loadFrom(filePath);
         if (shapes != null) setShapes(shapes);
     }
 

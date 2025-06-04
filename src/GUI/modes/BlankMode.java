@@ -1,9 +1,15 @@
 package GUI.modes;
 
+import GUI.Constants;
 import GUI.MainSimulationWindow;
+import GUI.PathChooser;
 import GUI.shapesGUI.BlockGUI;
 import GUI.shapesGUI.NodeGUI;
 import GUI.shapesGUI.ShapeGUI;
+import logic.communication.Scheduler;
+import logic.communication.transmitters.Transmitter;
+import logic.communication.transmitters.TransmitterType;
+import logic.communication.transmitters.TransmittersFactory;
 
 import javax.swing.*;
 
@@ -28,14 +34,36 @@ public class BlankMode extends Mode {
 
         JMenuItem transmitterItem = new JMenuItem("Change Transmitter");
         transmitterItem.addActionListener(e -> {
-            System.out.println("Transmitter change requested for node: " + node.getId());
-            // TODO
+            String[] transmitterNames = TransmitterType.getTransmitterTypeNames();
+            String chosenTypeStr = (String) JOptionPane.showInputDialog(
+                    mainWindow.getFrame(),
+                    "Choose a transmitter type:",
+                    "Change Transmitter",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    transmitterNames,
+                    transmitterNames[0]);
+            if (chosenTypeStr == null) return; // User cancelled
+            TransmitterType chosenType = TransmitterType.fromString(chosenTypeStr);
+            Transmitter newTransmitter = TransmittersFactory.createTransmitter(chosenType, node.node);
+            node.node.setTransmitter(newTransmitter);
+            node.setColor(chosenType.getColor());
+            mainWindow.getDrawingPanel().repaint();
         });
 
         JMenuItem scheduleItem = new JMenuItem("Schedule");
         scheduleItem.addActionListener(e -> {
-            System.out.println("Schedule change requested for node: " + node.getId());
-            // TODO
+            Transmitter transmitter = node.node.getTransmitter();
+            if (transmitter == null) {
+                JOptionPane.showMessageDialog(mainWindow.getFrame(),
+                        "Node does must have a transmitter assigned before scheduling.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            String path = PathChooser.choosePath(Constants.SCHEDULES_DIRECTORY);
+            if (path == null) return;
+            transmitter.clearSchedule();
+            Scheduler.scheduleFromFile(transmitter, path);
         });
 
         JMenuItem removeItem = new JMenuItem("Remove");

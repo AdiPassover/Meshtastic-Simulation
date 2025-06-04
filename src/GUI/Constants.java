@@ -1,11 +1,13 @@
 package GUI;
 
 import java.awt.*;
+import java.io.File;
 
 public final class Constants {
 
     public static final int NODE_RADIUS = 25;
     public static final Color NODE_COLOR = Color.BLACK;
+    public static final Color NODE_OUTLINE_COLOR = Color.BLACK;
     public static final Color NODE_TEXT_COLOR = Color.WHITE;
     public static final Font NODE_FONT = new Font("Arial", Font.BOLD, 17);
 
@@ -26,5 +28,9 @@ public final class Constants {
 
 
     public static final Color CHOSEN_BUTTON_COLOR = new Color(173, 216, 230);
+
+    public static final String PRESETS_DIRECTORY = System.getProperty("user.dir")+ File.separator+"src"+File.separator+"presets";
+    public static final String SCHEDULES_DIRECTORY = System.getProperty("user.dir")+ File.separator+"src"+File.separator+"schedules";
+
 
 }
