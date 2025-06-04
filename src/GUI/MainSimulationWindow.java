@@ -152,7 +152,7 @@ public class MainSimulationWindow {
         for (int i = 0; i < edges.size(); ++i) {
             EdgeGUI e = edges.get(i);
             Position pos1 = e.node1.getPosition(), pos2 = e.node2.getPosition();
-            if (block.intersectsLine(pos1, pos2)) {
+            if (block.block.intersectsLine(pos1, pos2)) {
                 edges.remove(i--);
             }
         }
@@ -248,7 +248,7 @@ public class MainSimulationWindow {
 
     public boolean hasLineOfSight(Position pos1, Position pos2) {
         for (BlockGUI block : blocks)
-            if (block.intersectsLine(pos1, pos2)) return false;
+            if (block.block.intersectsLine(pos1, pos2)) return false;
         return true;
     }
 

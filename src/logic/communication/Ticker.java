@@ -12,9 +12,9 @@ public class Ticker {
 
     private final PhysicsEngine physics;
     private final Graph graph;
-    private long currentTick;
+    private int currentTick;
 
-    private long collisionCount = 0;
+    private final Statistics stats;
 
     public Ticker(Graph graph, List<Block> blocks) {
         this.graph = graph;
@@ -35,6 +35,7 @@ public class Ticker {
             Transmission transmission = node.getTransmitter().transmit(currentTick);
             if (transmission == null) continue;
             activeTransmissions.add(transmission);
+            stats.addTransmission();
         }
 
         // 2. Deliver transmissions
@@ -62,13 +63,15 @@ public class Ticker {
             Node receiver = entry.getKey();
             List<Transmission> transmissions = entry.getValue();
 
-            if (transmissions.size() == 1) {
-                receiver.getTransmitter().receive(transmissions.remove(0), currentTick);
-            } else if (transmissions.size() > 1) { // Collision detected
-                collisionCount++;
-                double prob = physics.probabilityOfSurvivingCollision(transmissions.size());
-                for (Transmission tx : transmissions)
-                    if (Math.random() < prob) receiver.getTransmitter().receive(tx, currentTick);
+            double prob = physics.probabilityOfSurvivingCollision(transmissions.size());
+            for (Transmission tx : transmissions) {
+                if (Math.random() < prob) {
+                    receiver.getTransmitter().receive(tx, currentTick);
+                    if (receiver.id == tx.message.destinationId || (tx.message.destinationId == -1 && receiver.id != tx.message.sourceId)) {
+                        stats.addSuccessfulMessage();
+                        stats.addLatency(currentTick - tx.message.creationTick);
+                    }
+                }
             }
         }
 

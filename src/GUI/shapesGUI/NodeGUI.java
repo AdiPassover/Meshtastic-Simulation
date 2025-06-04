@@ -1,6 +1,7 @@
 package GUI.shapesGUI;
 
 import GUI.Constants;
+import logic.communication.transmitters.TransmitterType;
 import logic.graph_objects.Node;
 import logic.shapes.Position;
 
@@ -14,12 +15,17 @@ public class NodeGUI implements ShapeGUI, Serializable {
 
     public NodeGUI(int id, Position position) {
         node = new Node(id, position);
+        setTransmitter(Constants.DEFAULT_TRANSMITTER_TYPE);
     }
 
     public Position getPosition() { return node.position; }
     public int getId() { return node.id; }
     public void setColor(Color color) { this.color = color; }
 
+    public void setTransmitter(TransmitterType type) {
+        node.setTransmitter(type.create(node));
+        setColor(type.getColor());
+    }
 
     @Override
     public boolean contains(int x, int y) {

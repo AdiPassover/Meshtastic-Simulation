@@ -22,4 +22,7 @@ public class DeadTransmitter extends Transmitter {
     @Override
     public void clearSchedule() {}
 
+    @Override
+    public boolean isScheduleEmpty() { return true; }
+
 }
