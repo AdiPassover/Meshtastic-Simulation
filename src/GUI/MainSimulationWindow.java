@@ -9,8 +9,10 @@ import GUI.shapesGUI.NodeGUI;
 import GUI.shapesGUI.ShapeGUI;
 import logic.Statistics;
 import logic.Storage;
+import logic.communication.Message;
 import logic.communication.Ticker;
 import logic.graph_objects.Graph;
+import logic.graph_objects.Node;
 import logic.physics.Block;
 import logic.physics.PhysicsEngine;
 import logic.physics.Position;
@@ -23,6 +25,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class MainSimulationWindow {
 
@@ -31,7 +34,7 @@ public class MainSimulationWindow {
     private final JPanel controlPanel;
     private final JButton startButton,addNodeButton, addBlockButton, saveButton, loadButton, nextButton, playButton,
             pauseButton, skipButton;
-    private final JPanel statsPanel = new JPanel();
+    private final JPanel statsPanel = new JPanel(), receivedPanel = new JPanel();
 
     private final ModeFactory modes = new ModeFactory(this);
     private Mode currentMode = modes.BLANK;
@@ -364,7 +367,7 @@ public class MainSimulationWindow {
         speedSlider.setPaintLabels(true);
         controlPanel.add(speedSlider, gbc);
 
-        gbc.gridy++;  // Move below the slider
+        gbc.gridy++;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.CENTER;
 
@@ -402,6 +405,23 @@ public class MainSimulationWindow {
         statsPanel.add(collisionsLabel);
 
         controlPanel.add(statsPanel, gbc);
+
+        gbc.gridy++;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.CENTER;
+
+        receivedPanel.setLayout(new GridLayout(1, 1, 5, 5)); // 6 rows, spacing between items
+        receivedPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.BLACK, 2),
+                "Received Messages",
+                TitledBorder.CENTER,
+                TitledBorder.TOP,
+                new Font("SansSerif", Font.BOLD, 16),
+                Color.BLACK
+        ));
+        receivedPanel.setBackground(new Color(230, 230, 230)); // Light gray
+
+        controlPanel.add(receivedPanel, gbc);
     }
 
     private void updateStats() {
@@ -418,6 +438,33 @@ public class MainSimulationWindow {
                     case "Collisions" -> label.setText("Collisions: " + stats.getNumCollisions());
                     case "Current Tick" -> label.setText("Current Tick: " + ticker.getCurrentTick());
                 }
+            }
+        }
+
+        Map<Message, Node> messagesReceived = ticker.getMessagesReceivedThisTick();
+        receivedPanel.removeAll();
+        receivedPanel.setLayout(new GridLayout(messagesReceived.size(), 1, 5, 5)); // 6 rows, spacing between items
+        receivedPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.BLACK, 2),
+                "Received Messages",
+                TitledBorder.CENTER,
+                TitledBorder.TOP,
+                new Font("SansSerif", Font.BOLD, 16),
+                Color.BLACK
+        ));
+        receivedPanel.setBackground(new Color(230, 230, 230)); // Light gray
+        if (messagesReceived.isEmpty()) {
+            JLabel noMessagesLabel = new JLabel("No messages received this tick");
+            noMessagesLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            receivedPanel.add(noMessagesLabel);
+        } else {
+            for (Map.Entry<Message, Node> entry : messagesReceived.entrySet()) {
+                Message msg = entry.getKey();
+                Node sourceNode = entry.getValue();
+                JLabel messageLabel = new JLabel(sourceNode.id + " received: " + msg.payload +
+                        " from " + msg.sourceId);
+                messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                receivedPanel.add(messageLabel);
             }
         }
     }

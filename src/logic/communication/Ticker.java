@@ -13,6 +13,7 @@ public class Ticker {
     private final PhysicsEngine physics;
     private final Graph graph;
     private int currentTick;
+    private final Map<Message, Node> messagesReceivedThisTick = new HashMap<>();
 
     private final Statistics stats;
 
@@ -36,6 +37,7 @@ public class Ticker {
     public Statistics getStatistics() { return stats; }
 
     public void tick() {
+        messagesReceivedThisTick.clear();
 
         // 1. Transmit messages from nodes
         List<Transmission> activeTransmissions = new ArrayList<>();
@@ -77,6 +79,7 @@ public class Ticker {
             for (Transmission tx : concurrentTransmissions) {
                 if (Math.random() < prob) {
                     receiver.getTransmitter().receive(tx, currentTick);
+                    messagesReceivedThisTick.put(tx.message, receiver);
                     if (receiver.id == tx.message.destinationId) { // successful delivery
                         stats.addSuccessfulMessage(tx.message.hashCode(), currentTick - tx.message.creationTick);
                     }
@@ -94,6 +97,10 @@ public class Ticker {
         for (Node node : graph)
             if (!node.getTransmitter().isScheduleEmpty(currentTick)) return false;
         return true;
+    }
+
+    public Map<Message, Node> getMessagesReceivedThisTick() {
+        return Collections.unmodifiableMap(messagesReceivedThisTick);
     }
 
 }
