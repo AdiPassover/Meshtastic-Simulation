@@ -10,6 +10,7 @@ public final class Constants {
     public static final int NODE_RADIUS = 25;
     public static final Color NODE_COLOR = Color.BLACK;
     public static final Color NODE_OUTLINE_COLOR = Color.BLACK;
+    public static final Stroke NODE_OUTLINE_STROKE = new BasicStroke(2.0f);
     public static final Color NODE_TEXT_COLOR = Color.WHITE;
     public static final Font NODE_FONT = new Font("Arial", Font.BOLD, 17);
 

@@ -12,6 +12,7 @@ import java.util.Set;
 public class FloodingTransmitter extends Transmitter {
 
     private final Map<Integer, Message> scheduledMessages = new HashMap<>();
+    private final Set<Message> allOriginalMessages = new HashSet<>();
 
     private static final int DEFAULT_TTL = 5;
 
@@ -30,7 +31,7 @@ public class FloodingTransmitter extends Transmitter {
     }
 
     @Override
-    public void receive(Transmission tx, int currentTick) { // TODO how to count successful transmissions?
+    public void receive(Transmission tx, int currentTick) {
         Message msg = tx.message;
         if (receivedMessageHashes.contains(msg.hashCode())) return;
         receivedMessageHashes.add(msg.hashCode());
@@ -55,6 +56,7 @@ public class FloodingTransmitter extends Transmitter {
     public void scheduleMessage(String payload, int destinationId, int sendTick) {
         Message msg = new Message(owner.id, payload, DEFAULT_TTL, destinationId, sendTick);
         scheduledMessages.put(sendTick, msg);
+        allOriginalMessages.add(msg);
     }
 
     @Override
@@ -63,8 +65,17 @@ public class FloodingTransmitter extends Transmitter {
     }
 
     @Override
-    public boolean isScheduleEmpty() {
-        return scheduledMessages.isEmpty();
+    public boolean isScheduleEmpty(int currentTick) {
+        Set<Integer> keys = scheduledMessages.keySet();
+        for (Integer key : keys) {
+            if (key >= currentTick) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public Set<Message> getAllOriginalScheduledMessages() {
+        return new HashSet<>(scheduledMessages.values());
     }
 
 }

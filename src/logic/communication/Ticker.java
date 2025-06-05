@@ -20,7 +20,15 @@ public class Ticker {
         this.graph = graph;
         this.currentTick = 0;
         this.physics = new PhysicsEngine(blocks);
-        this.stats = new Statistics();
+
+        this.stats = new Statistics(graph.size());
+        for (Node node : graph) {
+            Set<Message> messages = node.getTransmitter().getAllOriginalScheduledMessages();
+            for (Message message : messages) {
+                stats.addOriginalMessage(message.hashCode());
+                if (message.destinationId == -1) stats.addBroadcastMessage(message.hashCode());
+            }
+        }
     }
 
     public int getCurrentTick() { return currentTick; }
@@ -35,6 +43,7 @@ public class Ticker {
             Transmission transmission = node.getTransmitter().transmit(currentTick);
             if (transmission == null) continue;
             activeTransmissions.add(transmission);
+
             stats.addTransmission();
         }
 
@@ -61,15 +70,18 @@ public class Ticker {
         // 3. Check for collisions
         for (var entry : received.entrySet()) {
             Node receiver = entry.getKey();
-            List<Transmission> transmissions = entry.getValue();
+            List<Transmission> concurrentTransmissions = entry.getValue();
 
-            double prob = physics.probabilityOfSurvivingCollision(transmissions.size());
-            for (Transmission tx : transmissions) {
+            double prob = physics.probabilityOfSurvivingCollision(concurrentTransmissions.size());
+            stats.addCollisions(concurrentTransmissions.size()-1);
+            for (Transmission tx : concurrentTransmissions) {
                 if (Math.random() < prob) {
                     receiver.getTransmitter().receive(tx, currentTick);
-                    if (receiver.id == tx.message.destinationId || (tx.message.destinationId == -1 && receiver.id != tx.message.sourceId)) {
-                        stats.addSuccessfulMessage();
-                        stats.addLatency(currentTick - tx.message.creationTick);
+                    if (receiver.id == tx.message.destinationId) { // successful delivery
+                        stats.addSuccessfulMessage(tx.message.hashCode(), currentTick - tx.message.creationTick);
+                    }
+                    else if (tx.message.destinationId == -1 && receiver.id != tx.message.sourceId) { // successful broadcast
+                        stats.addSuccessfulBroadcast(tx.message.hashCode(), receiver.id, currentTick - tx.message.creationTick);
                     }
                 }
             }
@@ -80,7 +92,7 @@ public class Ticker {
 
     public boolean isFinished() {
         for (Node node : graph)
-            if (!node.getTransmitter().isScheduleEmpty()) return false;
+            if (!node.getTransmitter().isScheduleEmpty(currentTick)) return false;
         return true;
     }
 

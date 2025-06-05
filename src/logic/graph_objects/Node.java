@@ -1,7 +1,7 @@
 package logic.graph_objects;
 
 import logic.communication.transmitters.Transmitter;
-import logic.shapes.Position;
+import logic.physics.Position;
 
 import java.io.Serial;
 import java.io.Serializable;

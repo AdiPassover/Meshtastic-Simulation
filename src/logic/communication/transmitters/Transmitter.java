@@ -1,9 +1,11 @@
 package logic.communication.transmitters;
 
+import logic.communication.Message;
 import logic.communication.Transmission;
 import logic.graph_objects.Node;
 
 import java.io.Serializable;
+import java.util.Set;
 
 public abstract class Transmitter implements Serializable {
 
@@ -25,7 +27,8 @@ public abstract class Transmitter implements Serializable {
     public abstract void scheduleMessage(String payload, int destinationId, int sendTick);
     public abstract void clearSchedule();
 
-    public abstract boolean isScheduleEmpty();
+    public abstract boolean isScheduleEmpty(int currentTick);
+    public abstract Set<Message> getAllOriginalScheduledMessages();
 
 }
 

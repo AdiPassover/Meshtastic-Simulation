@@ -3,7 +3,7 @@ package GUI.modes;
 import GUI.Constants;
 import GUI.MainSimulationWindow;
 import GUI.shapesGUI.NodeGUI;
-import logic.shapes.Position;
+import logic.physics.Position;
 
 import java.awt.*;
 import java.util.function.Consumer;

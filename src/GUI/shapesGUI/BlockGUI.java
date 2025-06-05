@@ -3,11 +3,8 @@ package GUI.shapesGUI;
 import GUI.Constants;
 import GUI.elevation.ElevationSlider;
 import logic.physics.Block;
-import logic.shapes.Position;
 
 import java.awt.*;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
 import java.io.Serializable;
 
 public class BlockGUI implements ShapeGUI, Serializable {

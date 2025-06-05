@@ -1,6 +1,8 @@
 package logic.graph_objects;
 
-public class Edge {
+import java.io.Serializable;
+
+public class Edge implements Serializable {
 
     public final Node node1, node2;
 

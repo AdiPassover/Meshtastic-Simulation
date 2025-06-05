@@ -3,7 +3,7 @@ package GUI.shapesGUI;
 import GUI.Constants;
 import logic.communication.transmitters.TransmitterType;
 import logic.graph_objects.Node;
-import logic.shapes.Position;
+import logic.physics.Position;
 
 import java.awt.*;
 import java.io.Serializable;
@@ -40,6 +40,7 @@ public class NodeGUI implements ShapeGUI, Serializable {
         g.fillOval((int)node.x()-size, (int)node.y()-size, 2*size, 2*size);
 
         g.setColor(Constants.NODE_OUTLINE_COLOR);
+        g.setStroke(Constants.NODE_OUTLINE_STROKE);
         g.drawOval((int)node.x()-size, (int)node.y()-size, 2*size, 2*size);
 
         g.setColor(Constants.NODE_TEXT_COLOR);

@@ -7,13 +7,16 @@ import GUI.shapesGUI.BlockGUI;
 import GUI.shapesGUI.EdgeGUI;
 import GUI.shapesGUI.NodeGUI;
 import GUI.shapesGUI.ShapeGUI;
+import logic.Statistics;
 import logic.Storage;
 import logic.communication.Ticker;
 import logic.graph_objects.Graph;
 import logic.physics.Block;
-import logic.shapes.Position;
+import logic.physics.PhysicsEngine;
+import logic.physics.Position;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -28,17 +31,22 @@ public class MainSimulationWindow {
     private final JPanel controlPanel;
     private final JButton startButton,addNodeButton, addBlockButton, saveButton, loadButton, nextButton, playButton,
             pauseButton, skipButton;
+    private final JPanel statsPanel = new JPanel();
 
     private final ModeFactory modes = new ModeFactory(this);
     private Mode currentMode = modes.BLANK;
     private boolean isBuilding = true; // Used to track if we are in building mode
     private boolean isPlaying = false;
 
+    private Ticker ticker;
+    private PhysicsEngine physics = new PhysicsEngine();
+
+    private double currentDelay = 1.0; // Delay for the simulation, in seconds
+    private Timer playTimer;
+
     private final List<NodeGUI> nodes = new ArrayList<>();
     private final List<EdgeGUI> edges = new ArrayList<>();
     private final List<BlockGUI> blocks = new ArrayList<>();
-
-    private Ticker ticker;
 
 
     public MainSimulationWindow() {
@@ -80,6 +88,15 @@ public class MainSimulationWindow {
 
         layoutBuildComponents();
         frame.setVisible(true);
+
+        playTimer = new Timer(0, e -> {
+            if (!ticker.isFinished()) {
+                tick();
+            } else {
+                playTimer.stop();
+                isPlaying = false;
+            }
+        });
     }
 
 
@@ -118,22 +135,32 @@ public class MainSimulationWindow {
         if (shapes != null) setShapes(shapes);
     }
     private void nextButton() {
-        ticker.tick();
-    }
-    private void playButton() {
-        isPlaying = true;
-        ticker.getStatistics().printStats();
-    }
-    private void pauseButton() {
-        isPlaying = false;
+        tick();
     }
     private void skipButton() {
         while (!ticker.isFinished()) {
-            ticker.tick();
+            tick();
         }
     }
-
-
+    private void playButton() {
+        if (!isPlaying) {
+            isPlaying = true;
+            int delayInMillis = (int)(currentDelay * 1000); // Set the current delay in milliseconds
+            playTimer.setDelay(delayInMillis);
+            playTimer.setInitialDelay(0);
+            playTimer.start();
+        }
+    }
+    private void pauseButton() {
+        if (isPlaying) {
+            isPlaying = false;
+            playTimer.stop();
+        }
+    }
+    private void tick() {
+        ticker.tick();
+        updateStats();
+    }
 
 
     public void addNode(NodeGUI node) {
@@ -157,6 +184,7 @@ public class MainSimulationWindow {
             }
         }
 
+        physics.addBlock(block.block);
         blocks.add(block);
         drawingPanel.repaint();
     }
@@ -172,9 +200,8 @@ public class MainSimulationWindow {
             NodeGUI node1 = nodes.get(i);
             for (int j = i+1; j < nodes.size(); ++j) {
                 NodeGUI node2 = nodes.get(j);
-                if (!node1.node.hasNeighbour(node2.node) && shouldAddEdge(node1, node2)) {
+                if (shouldAddEdge(node1, node2))
                     addEdge(nodes.get(i), nodes.get(j));
-                }
             }
         }
 
@@ -192,6 +219,7 @@ public class MainSimulationWindow {
         nodes.clear();
         edges.clear();
         blocks.clear();
+        physics.clearBlocks();
         drawingPanel.repaint();
     }
 
@@ -207,16 +235,9 @@ public class MainSimulationWindow {
 
     public void setShapes(List<NodeGUI> nodes, List<BlockGUI> blocks) {
         clear();
-        this.nodes.addAll(nodes);
-        this.blocks.addAll(blocks);
-
-        for (int i = 0; i < nodes.size(); ++i) {
-            NodeGUI node1 = nodes.get(i);
-            for (int j = i + 1; j < nodes.size(); ++j) {
-                NodeGUI node2 = nodes.get(j);
-                if (shouldAddEdge(node1, node2)) addEdge(node1, node2);
-            }
-        }
+        for (BlockGUI block : blocks) addBlock(block);
+        for (NodeGUI node : nodes) addNode(node);
+        drawingPanel.repaint();
     }
 
     public Graph getGraph() {
@@ -246,14 +267,9 @@ public class MainSimulationWindow {
         return null;
     }
 
-    public boolean hasLineOfSight(Position pos1, Position pos2) {
-        for (BlockGUI block : blocks)
-            if (block.block.intersectsLine(pos1, pos2)) return false;
-        return true;
-    }
-
     private boolean shouldAddEdge(NodeGUI node1, NodeGUI node2) {
-        return hasLineOfSight(node1.getPosition(), node2.getPosition());
+        return physics.probabilityOfMessagePassing(node1.node, node2.node) > 0.0 &&
+                !node1.node.hasNeighbour(node2.node);
     }
 
     private void layoutBuildComponents() {
@@ -315,39 +331,95 @@ public class MainSimulationWindow {
         controlPanel.add(nextButton, gbc);
 
         gbc.gridx = 1;
-        controlPanel.add(playButton, gbc);
+        controlPanel.add(skipButton, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;
-        controlPanel.add(pauseButton, gbc);
+        controlPanel.add(playButton, gbc);
 
         gbc.gridx = 1;
-        controlPanel.add(skipButton, gbc);
+        controlPanel.add(pauseButton, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        JLabel sliderLabel = new JLabel("Speed:");
+        JLabel sliderLabel = new JLabel("Delay:");
         sliderLabel.setHorizontalAlignment(SwingConstants.CENTER);
         controlPanel.add(sliderLabel, gbc);
 
         gbc.gridy++;
-        int sliderMin = 1;
+        int sliderMin = 0;
         int sliderMax = 20;
-        double realMin = 0.1;
+        double realMin = 0.0;
         double realMax = 2.0;
 
         JSlider speedSlider = new JSlider(sliderMin, sliderMax, 10); // initial value = 1.0
-
         speedSlider.addChangeListener(e -> {
             int sliderValue = speedSlider.getValue();
-            double realValue = realMin + (realMax - realMin) * (sliderValue - sliderMin) / (sliderMax - sliderMin);
+            currentDelay = realMin + (realMax - realMin) * (sliderValue - sliderMin) / (sliderMax - sliderMin);
         });
-        speedSlider.setMajorTickSpacing(10);
+        speedSlider.setMajorTickSpacing(5);
         speedSlider.setPaintTicks(true);
         speedSlider.setPaintLabels(true);
         controlPanel.add(speedSlider, gbc);
+
+        gbc.gridy++;  // Move below the slider
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.CENTER;
+
+        statsPanel.setLayout(new GridLayout(6, 1, 5, 5)); // 6 rows, spacing between items
+        statsPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.BLACK, 2),
+                "Simulation Statistics",
+                TitledBorder.CENTER,
+                TitledBorder.TOP,
+                new Font("SansSerif", Font.BOLD, 16),
+                Color.BLACK
+        ));
+        statsPanel.setBackground(new Color(230, 230, 230)); // Light gray
+
+        Font statFont = new Font("SansSerif", Font.PLAIN, 14);
+
+        JLabel currentTickLabel = new JLabel("Current Tick: 0");
+        currentTickLabel.setFont(statFont);
+        JLabel transmissionsLabel = new JLabel("Transmissions: 0");
+        transmissionsLabel.setFont(statFont);
+        JLabel originalMessagesLabel = new JLabel("Original Messages: 0");
+        originalMessagesLabel.setFont(statFont);
+        JLabel successfulMessagesLabel = new JLabel("Successful Messages: 0");
+        successfulMessagesLabel.setFont(statFont);
+        JLabel averageLatencyLabel = new JLabel("Average Latency: 0.00");
+        averageLatencyLabel.setFont(statFont);
+        JLabel collisionsLabel = new JLabel("Collisions: 0");
+        collisionsLabel.setFont(statFont);
+
+        statsPanel.add(currentTickLabel);
+        statsPanel.add(transmissionsLabel);
+        statsPanel.add(originalMessagesLabel);
+        statsPanel.add(successfulMessagesLabel);
+        statsPanel.add(averageLatencyLabel);
+        statsPanel.add(collisionsLabel);
+
+        controlPanel.add(statsPanel, gbc);
+    }
+
+    private void updateStats() {
+        if (ticker == null) return;
+
+        Statistics stats = ticker.getStatistics();
+        for (Component comp : statsPanel.getComponents()) {
+            if (comp instanceof JLabel label) {
+                switch (label.getText().split(":")[0]) {
+                    case "Transmissions" -> label.setText("Transmissions: " + stats.getTotalTransmissions());
+                    case "Original Messages" -> label.setText("Original Messages: " + stats.getOriginalMessages());
+                    case "Successful Messages" -> label.setText("Successful Messages: " + stats.getSuccessfulMessages());
+                    case "Average Latency" -> label.setText(String.format("Average Latency: %.2f", stats.getAverageLatency()));
+                    case "Collisions" -> label.setText("Collisions: " + stats.getNumCollisions());
+                    case "Current Tick" -> label.setText("Current Tick: " + ticker.getCurrentTick());
+                }
+            }
+        }
     }
 
     private void highlightButton(JButton button) {

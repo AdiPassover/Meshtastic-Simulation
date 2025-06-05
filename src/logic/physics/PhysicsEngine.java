@@ -10,9 +10,20 @@ public class PhysicsEngine implements Serializable {
 
     private final List<Block> blocks;
 
+
     public PhysicsEngine(List<Block> blocks) {
-        this.blocks = new ArrayList<>(blocks);
+        this.blocks = blocks;
     }
+    public PhysicsEngine() { this(new ArrayList<>()); }
+
+
+    public void addBlock(Block block) {
+        blocks.add(block);
+    }
+    public void clearBlocks() {
+        blocks.clear();
+    }
+
 
     private boolean hasLineOfSight(Node source, Node receiver) {
         for (Block block : blocks) {

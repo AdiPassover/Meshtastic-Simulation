@@ -1,4 +1,4 @@
-package logic.shapes;
+package logic.physics;
 
 import java.io.Serializable;
 
