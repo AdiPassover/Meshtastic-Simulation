@@ -75,7 +75,11 @@ public class MainSimulationWindow {
             @Override public void mouseMoved(MouseEvent e) {
                 currentMode.mouseHover(e.getX(), e.getY());
             }
+            // TODO: make dragging use mouseDragged?
         });
+
+        drawingPanel.addMouseWheelListener(e -> currentMode.mouseWheelRotate(e.getWheelRotation(), e.getLocationOnScreen().x, e.getLocationOnScreen().y));    // TODO: use precise?
+
         controlPanel = new JPanel(new GridBagLayout());
 
         Dimension BIG_BUTTON_SIZE = new Dimension(220, 30);

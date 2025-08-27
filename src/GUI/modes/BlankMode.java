@@ -32,7 +32,7 @@ public class BlankMode extends Mode {
     @Override public void mouseHover(int x, int y) {
         if (draggingPosition == null) return;
         // create new ScreenTransform st such that st.screenToWorld(x, y) == draggingPosition
-        mainWindow.setTransform(new ScreenTransform(draggingPosition.x - x, draggingPosition.y - y, mainWindow.getTransform().zoom()));
+        mainWindow.setTransform(ScreenTransform.createFromRequirement(draggingPosition, new Point(x, y), mainWindow.getTransform().zoom()));
         mainWindow.getDrawingPanel().repaint();
     }
 
@@ -43,6 +43,16 @@ public class BlankMode extends Mode {
 
         if (shape instanceof BlockGUI b) showBlockPopup(b, x, y);
         else if (shape instanceof NodeGUI n) showNodePopup(n, x, y);
+    }
+
+    @Override
+    public void mouseWheelRotate(int clicks, int x, int y) {
+        if (draggingPosition != null) return;   // do not allow zoom while dragging, it's a mess
+        double zoom = mainWindow.getTransform().zoom() * Math.pow(Constants.ZOOM_PER_WHEEL_CLICK, -clicks);
+        Point mouseScreenLocation = new Point(x, y);
+        Position mouseWorldPosition = mainWindow.getTransform().screenToWorld(mouseScreenLocation);
+        mainWindow.setTransform(ScreenTransform.createFromRequirement(mouseWorldPosition, mouseScreenLocation, zoom));
+        mainWindow.getDrawingPanel().repaint();
     }
 
     private void showNodePopup(NodeGUI node, int x, int y) {
