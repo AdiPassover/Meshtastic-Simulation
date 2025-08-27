@@ -25,8 +25,8 @@ public class BlockGUI implements ShapeGUI, Serializable {
     }
 
     @Override
-    public boolean contains(int x, int y) {
-        return block.polygon.contains(x, y);
+    public boolean contains(int x, int y, ScreenTransform transform) {
+        return block.contains(transform.screenToWorld(new Point(x, y)));
     }
 
     @Override

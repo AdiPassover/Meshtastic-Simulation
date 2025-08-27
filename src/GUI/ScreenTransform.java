@@ -11,7 +11,7 @@ public record ScreenTransform(double x, double y, double zoom) {
     return new Position(p.x + x, p.y + y);
   }
 
-  public Point worldToScreen(Position p) {  // TODO: should be used when drawing block
+  public Point worldToScreen(Position p) {
     if (p == null) return null;
     return new Point((int) (p.x - x), (int) (p.y - y)); // TODO: maybe round to nearest, don't think it should matter
   }

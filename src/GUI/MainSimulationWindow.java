@@ -255,20 +255,21 @@ public class MainSimulationWindow {
     public DrawingPanel getDrawingPanel() { return drawingPanel; }
     public JFrame getFrame() { return frame; }
 
-    public double getHeightAt(double x, double y) {
+    public double getHeightAt(int x, int y) {
         double maxHeight = Constants.MINIMUM_HEIGHT - 1;
         for (BlockGUI b : blocks)
-            if (b.contains((int)x, (int)y)) maxHeight = Math.max(maxHeight, b.getHeight());
+            if (b.contains(x, y, getTransform())) maxHeight = Math.max(maxHeight, b.getHeight());
 
-        return maxHeight!=Constants.MINIMUM_HEIGHT-1 ? maxHeight : 0.0;
+        return maxHeight != Constants.MINIMUM_HEIGHT - 1 ? maxHeight : 0.0;
     }
 
     public ShapeGUI getShapeAt(int x, int y) {
+
         List<ShapeGUI> shapes = new ArrayList<>(nodes);
         shapes.addAll(blocks);
 
         for (ShapeGUI shape : shapes)
-            if (shape.contains(x, y)) return shape;
+            if (shape.contains(x, y, getTransform())) return shape;
         return null;
     }
 

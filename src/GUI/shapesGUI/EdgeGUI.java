@@ -17,7 +17,7 @@ public class EdgeGUI implements ShapeGUI {
 
 
     @Override
-    public boolean contains(int x, int y) {
+    public boolean contains(int x, int y, ScreenTransform transform) {
         return false;
     }
 

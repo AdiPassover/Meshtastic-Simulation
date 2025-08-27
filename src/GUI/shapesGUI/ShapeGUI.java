@@ -6,7 +6,7 @@ import java.awt.*;
 
 public interface ShapeGUI {
 
-    boolean contains(int x, int y);
+    boolean contains(int x, int y, ScreenTransform transform);
 
     void drawShape(Graphics2D g, ScreenTransform transform);
 

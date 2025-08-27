@@ -70,4 +70,8 @@ public class Block implements Serializable {
 
         return new Point2D.Double(x, y);
     }
+
+    public boolean contains(Position pos) {
+        return polygon.contains(new Point((int) pos.x, (int) pos.y));
+    }
 }
