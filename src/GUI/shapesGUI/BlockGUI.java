@@ -7,7 +7,6 @@ import logic.physics.Block;
 import logic.physics.Position;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.io.Serializable;
 
 public class BlockGUI implements ShapeGUI, Serializable {
@@ -32,9 +31,6 @@ public class BlockGUI implements ShapeGUI, Serializable {
     @Override
     public void drawShape(Graphics2D g, ScreenTransform transform) {
         Polygon drawPolygon = new Polygon();
-        AffineTransform at = new AffineTransform();
-        at.setToTranslation(transform.x(), transform.y());
-        at.scale(transform.zoom(), transform.zoom());   // TODO: really not sure this works
 
         for (int i = 0; i < block.polygon.npoints; ++i) {
             Position worldPosition = new Position(block.polygon.xpoints[i], block.polygon.ypoints[i]);
