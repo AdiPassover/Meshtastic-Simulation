@@ -56,9 +56,7 @@ public class AddBlockMode extends Mode {
     @Override
     public void mouseHover(int x, int y) {
         if (isChoosingHeight) return;
-        mainWindow.getDrawingPanel().setPreview(g -> {
-            drawPreview(g, x, y);
-        });
+        mainWindow.getDrawingPanel().setPreview(g -> drawPreview(g, x, y));
     }
 
     private void drawPreview(Graphics2D g, int x, int y) {
