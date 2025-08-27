@@ -15,7 +15,9 @@ public class AddNodeMode extends Mode {
 
     @Override
     public void mouseClick(int x, int y) {
-        NodeGUI newNode = new NodeGUI(nodeIdCounter++, new Position(x, y, mainWindow.getHeightAt(x, y)+0.1));
+        Position pos = mainWindow.getTransform().screenToWorld(new Point(x, y));
+        pos = new Position(pos.x, pos.y, mainWindow.getHeightAt(pos.x, pos.y) + 0.1);
+        NodeGUI newNode = new NodeGUI(nodeIdCounter++, pos);
         System.out.println("Adding node at: " + newNode.getPosition());
         mainWindow.addNode(newNode);
     }
