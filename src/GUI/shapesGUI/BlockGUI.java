@@ -1,6 +1,7 @@
 package GUI.shapesGUI;
 
 import GUI.Constants;
+import GUI.ScreenTransform;
 import GUI.elevation.ElevationSlider;
 import logic.physics.Block;
 
@@ -27,7 +28,7 @@ public class BlockGUI implements ShapeGUI, Serializable {
     }
 
     @Override
-    public void drawShape(Graphics2D g) {
+    public void drawShape(Graphics2D g, ScreenTransform transform) {
         g.setColor(color);
         g.fill(block.polygon);
 

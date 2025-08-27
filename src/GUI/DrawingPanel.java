@@ -26,7 +26,7 @@ public class DrawingPanel extends JPanel {
         g.fillRect(0, 0, getWidth(), getHeight());
 
         for (ShapeGUI shape : mainWindow.getShapes()) {
-            shape.drawShape((Graphics2D) g);
+            shape.drawShape((Graphics2D) g, mainWindow.getTransform());
         }
 
         if (previewDrawer != null)

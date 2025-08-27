@@ -1,6 +1,7 @@
 package GUI.shapesGUI;
 
 import GUI.Constants;
+import GUI.ScreenTransform;
 import logic.communication.transmitters.TransmitterType;
 import logic.graph_objects.Node;
 import logic.physics.Position;
@@ -34,19 +35,21 @@ public class NodeGUI implements ShapeGUI, Serializable {
 
 
     @Override
-    public void drawShape(Graphics2D g) {
+    public void drawShape(Graphics2D g, ScreenTransform transform) {
+        int size = Constants.NODE_RADIUS;   // TODO: adjust by zoom?
+        Point drawLoc = transform.worldToScreen(new Position(node.x(), node.y()));
+
         g.setColor(color);
-        int size = Constants.NODE_RADIUS;
-        g.fillOval((int)node.x()-size, (int)node.y()-size, 2*size, 2*size);
+        g.fillOval(drawLoc.x - size, drawLoc.y - size, 2 * size, 2 * size);
 
         g.setColor(Constants.NODE_OUTLINE_COLOR);
         g.setStroke(Constants.NODE_OUTLINE_STROKE);
-        g.drawOval((int)node.x()-size, (int)node.y()-size, 2*size, 2*size);
+        g.drawOval(drawLoc.x - size, drawLoc.y - size, 2 * size, 2 * size);
 
         g.setColor(Constants.NODE_TEXT_COLOR);
         g.setFont(Constants.NODE_FONT);
 
-        g.drawString(Integer.toString(node.id), (int)node.x()-size/4, (int)node.y());
+        g.drawString(Integer.toString(node.id), drawLoc.x - size / 4, drawLoc.y);
     }
 
 }

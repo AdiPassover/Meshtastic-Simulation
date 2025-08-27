@@ -42,7 +42,7 @@ public class MainSimulationWindow {
     private boolean isPlaying = false;
 
     private Ticker ticker;
-    private PhysicsEngine physics = new PhysicsEngine();
+    private final PhysicsEngine physics = new PhysicsEngine();
 
     private double currentDelay = 1.0; // Delay for the simulation, in seconds
     private Timer playTimer;
@@ -50,6 +50,8 @@ public class MainSimulationWindow {
     private final List<NodeGUI> nodes = new ArrayList<>();
     private final List<EdgeGUI> edges = new ArrayList<>();
     private final List<BlockGUI> blocks = new ArrayList<>();
+
+    private ScreenTransform transform = new ScreenTransform(0, 0, 1);
 
 
     public MainSimulationWindow() {
@@ -503,4 +505,11 @@ public class MainSimulationWindow {
         return button;
     }
 
+    public ScreenTransform getTransform() {
+        return transform;
+    }
+
+    public void setTransform(ScreenTransform t) {
+        transform = t;
+    }
 }

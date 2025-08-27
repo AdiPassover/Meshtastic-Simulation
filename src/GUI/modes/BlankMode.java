@@ -3,22 +3,38 @@ package GUI.modes;
 import GUI.Constants;
 import GUI.MainSimulationWindow;
 import GUI.PathChooser;
+import GUI.ScreenTransform;
 import GUI.shapesGUI.BlockGUI;
 import GUI.shapesGUI.NodeGUI;
 import GUI.shapesGUI.ShapeGUI;
 import logic.communication.Scheduler;
 import logic.communication.transmitters.Transmitter;
 import logic.communication.transmitters.TransmitterType;
-import logic.communication.transmitters.TransmittersFactory;
+import logic.physics.Position;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class BlankMode extends Mode {
 
+    private Position draggingPosition = null;
+
     public BlankMode(MainSimulationWindow mainWindow) { super(mainWindow); }
 
-    @Override public void mouseClick(int x, int y) {}
-    @Override public void mouseHover(int x, int y) {}
+    @Override public void mouseClick(int x, int y) {
+        if (draggingPosition != null) {
+            draggingPosition = null;
+            return;
+        }
+        draggingPosition = mainWindow.getTransform().screenToWorld(new Point(x, y));
+        System.out.println("Dragging from position: " + draggingPosition);
+    }
+    @Override public void mouseHover(int x, int y) {
+        if (draggingPosition == null) return;
+        // create new ScreenTransform st such that st.screenToWorld(x, y) == draggingPosition
+        mainWindow.setTransform(new ScreenTransform(draggingPosition.x - x, draggingPosition.y - y, mainWindow.getTransform().zoom()));
+        mainWindow.getDrawingPanel().repaint();
+    }
 
     @Override
     public void mouseRightClick(int x, int y) {
@@ -66,9 +82,7 @@ public class BlankMode extends Mode {
         });
 
         JMenuItem removeItem = new JMenuItem("Remove");
-        removeItem.addActionListener(e -> {
-            mainWindow.removeNode(node);
-        });
+        removeItem.addActionListener(e -> mainWindow.removeNode(node));
 
         popup.add(transmitterItem);
         popup.add(scheduleItem);
@@ -80,9 +94,7 @@ public class BlankMode extends Mode {
     private void showBlockPopup(BlockGUI block, int x, int y) {
         JPopupMenu popup = new JPopupMenu();
         JMenuItem removeItem = new JMenuItem("Remove");
-        removeItem.addActionListener(e -> {
-            mainWindow.removeBlock(block);
-        });
+        removeItem.addActionListener(e -> mainWindow.removeBlock(block));
         popup.add(removeItem);
         popup.show(mainWindow.getFrame(), x, y);
     }
