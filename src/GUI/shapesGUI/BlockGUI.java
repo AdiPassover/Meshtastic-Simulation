@@ -1,8 +1,10 @@
 package GUI.shapesGUI;
 
 import GUI.Constants;
+import GUI.ScreenTransform;
 import GUI.elevation.ElevationSlider;
 import logic.physics.Block;
+import logic.physics.Position;
 
 import java.awt.*;
 import java.io.Serializable;
@@ -22,17 +24,25 @@ public class BlockGUI implements ShapeGUI, Serializable {
     }
 
     @Override
-    public boolean contains(int x, int y) {
-        return block.polygon.contains(x, y);
+    public boolean contains(int x, int y, ScreenTransform transform) {
+        return block.contains(transform.screenToWorld(new Point(x, y)));
     }
 
     @Override
-    public void drawShape(Graphics2D g) {
+    public void drawShape(Graphics2D g, ScreenTransform transform) {
+        Polygon drawPolygon = new Polygon();
+
+        for (int i = 0; i < block.polygon.npoints; ++i) {
+            Position worldPosition = new Position(block.polygon.xpoints[i], block.polygon.ypoints[i]);
+            Point drawPoint = transform.worldToScreen(worldPosition);
+            drawPolygon.addPoint(drawPoint.x, drawPoint.y);
+        }
+
         g.setColor(color);
-        g.fill(block.polygon);
+        g.fill(drawPolygon);
 
         g.setColor(Constants.BLOCK_OUTLINE_COLOR);
-        g.draw(block.polygon);
+        g.draw(drawPolygon);
     }
 
 }

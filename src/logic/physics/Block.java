@@ -6,7 +6,7 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 
 public class Block implements Serializable {
-    public final Polygon polygon;
+    public final Polygon polygon;   // TODO: this limits to integer coordinates, world generally uses double
     public final double height;
 
     public Block(Polygon polygon, double height) {
@@ -69,5 +69,9 @@ public class Block implements Serializable {
         double y = y1 + ua * (y2 - y1);
 
         return new Point2D.Double(x, y);
+    }
+
+    public boolean contains(Position pos) {
+        return polygon.contains(new Point((int) pos.x, (int) pos.y));
     }
 }

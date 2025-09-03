@@ -42,7 +42,7 @@ public class MainSimulationWindow {
     private boolean isPlaying = false;
 
     private Ticker ticker;
-    private PhysicsEngine physics = new PhysicsEngine();
+    private final PhysicsEngine physics = new PhysicsEngine();
 
     private double currentDelay = 1.0; // Delay for the simulation, in seconds
     private Timer playTimer;
@@ -50,6 +50,8 @@ public class MainSimulationWindow {
     private final List<NodeGUI> nodes = new ArrayList<>();
     private final List<EdgeGUI> edges = new ArrayList<>();
     private final List<BlockGUI> blocks = new ArrayList<>();
+
+    private ScreenTransform transform = new ScreenTransform(0, 0, 1);
 
 
     public MainSimulationWindow() {
@@ -73,7 +75,11 @@ public class MainSimulationWindow {
             @Override public void mouseMoved(MouseEvent e) {
                 currentMode.mouseHover(e.getX(), e.getY());
             }
+            // TODO: make dragging use mouseDragged?
         });
+
+        drawingPanel.addMouseWheelListener(e -> currentMode.mouseWheelRotate(e.getWheelRotation(), e.getLocationOnScreen().x, e.getLocationOnScreen().y));    // TODO: use precise?
+
         controlPanel = new JPanel(new GridBagLayout());
 
         Dimension BIG_BUTTON_SIZE = new Dimension(220, 30);
@@ -253,20 +259,21 @@ public class MainSimulationWindow {
     public DrawingPanel getDrawingPanel() { return drawingPanel; }
     public JFrame getFrame() { return frame; }
 
-    public double getHeightAt(double x, double y) {
+    public double getHeightAt(int x, int y) {
         double maxHeight = Constants.MINIMUM_HEIGHT - 1;
         for (BlockGUI b : blocks)
-            if (b.contains((int)x, (int)y)) maxHeight = Math.max(maxHeight, b.getHeight());
+            if (b.contains(x, y, getTransform())) maxHeight = Math.max(maxHeight, b.getHeight());
 
-        return maxHeight!=Constants.MINIMUM_HEIGHT-1 ? maxHeight : 0.0;
+        return maxHeight != Constants.MINIMUM_HEIGHT - 1 ? maxHeight : 0.0;
     }
 
     public ShapeGUI getShapeAt(int x, int y) {
+
         List<ShapeGUI> shapes = new ArrayList<>(nodes);
         shapes.addAll(blocks);
 
         for (ShapeGUI shape : shapes)
-            if (shape.contains(x, y)) return shape;
+            if (shape.contains(x, y, getTransform())) return shape;
         return null;
     }
 
@@ -503,4 +510,11 @@ public class MainSimulationWindow {
         return button;
     }
 
+    public ScreenTransform getTransform() {
+        return transform;
+    }
+
+    public void setTransform(ScreenTransform t) {
+        transform = t;
+    }
 }

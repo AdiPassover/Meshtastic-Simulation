@@ -4,6 +4,7 @@ import GUI.Constants;
 import GUI.elevation.ElevationSlider;
 import GUI.MainSimulationWindow;
 import GUI.shapesGUI.BlockGUI;
+import logic.physics.Position;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.List;
 public class AddBlockMode extends Mode {
     public AddBlockMode(MainSimulationWindow mainWindow) { super(mainWindow); }
 
-    private final List<Point> points = new ArrayList<>();
+    private final List<Point> points = new ArrayList<>();   // these are screen locations
     private boolean isChoosingHeight = false;
 
     @Override
@@ -29,15 +30,20 @@ public class AddBlockMode extends Mode {
 
     @Override
     public void mouseRightClick(int x, int y) {
-        if (points.size() < 3) return;
-
+        points.add(new Point(x, y));    // add right click location to match preview
+        if (points.size() < 3) {
+            points.clear();  // cancel drawing
+            return;
+        }
         isChoosingHeight = true;
 
         ElevationSlider.promptHeightSlider(height -> {
             int[][] pointsArray = new int[2][points.size()];
             for (int i = 0; i < points.size(); i++) {
-                pointsArray[0][i] = points.get(i).x;
-                pointsArray[1][i] = points.get(i).y;
+                // we saved the points as screen locations, so we need to convert to world position
+                Position pos = mainWindow.getTransform().screenToWorld(points.get(i));
+                pointsArray[0][i] = (int) pos.x;
+                pointsArray[1][i] = (int) pos.y;
             }
 
             Polygon polygon = new Polygon(pointsArray[0], pointsArray[1], points.size());
@@ -47,13 +53,10 @@ public class AddBlockMode extends Mode {
         });
     }
 
-
     @Override
     public void mouseHover(int x, int y) {
         if (isChoosingHeight) return;
-        mainWindow.getDrawingPanel().setPreview(g -> {
-            drawPreview(g, x, y);
-        });
+        mainWindow.getDrawingPanel().setPreview(g -> drawPreview(g, x, y));
     }
 
     private void drawPreview(Graphics2D g, int x, int y) {
@@ -78,6 +81,4 @@ public class AddBlockMode extends Mode {
         mainWindow.getDrawingPanel().clearPreview();
         points.clear();
     }
-
-
 }
