@@ -55,6 +55,11 @@ public class BlankMode extends Mode {
         mainWindow.getDrawingPanel().repaint();
     }
 
+    @Override
+    public void close() {
+        draggingPosition = null;
+    }
+
     private void showNodePopup(NodeGUI node, int x, int y) {
         if (!mainWindow.isBuilding()) return;
         JPopupMenu popup = new JPopupMenu();
@@ -108,5 +113,4 @@ public class BlankMode extends Mode {
         popup.add(removeItem);
         popup.show(mainWindow.getFrame(), x, y);
     }
-
 }
