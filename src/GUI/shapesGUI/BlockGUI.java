@@ -18,6 +18,7 @@ public class BlockGUI implements ShapeGUI, Serializable {
         this.block = new Block(polygon, height);
         this.color = ElevationSlider.getElevationColor(height);
     }
+    public BlockGUI(Block block) { this(block.polygon, block.height); }
 
     public double getHeight() {
         return block.height;

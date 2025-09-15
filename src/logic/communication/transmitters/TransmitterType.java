@@ -33,4 +33,8 @@ public enum TransmitterType {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unknown TransmitterType: " + name));
     }
+
+    @Override
+    public String toString() { return name(); }
+
 }

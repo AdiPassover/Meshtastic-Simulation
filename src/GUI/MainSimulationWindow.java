@@ -11,6 +11,7 @@ import logic.Statistics;
 import logic.Storage;
 import logic.communication.Message;
 import logic.communication.Ticker;
+import logic.communication.transmitters.TransmitterType;
 import logic.graph_objects.Graph;
 import logic.graph_objects.Node;
 import logic.physics.Block;
@@ -26,6 +27,7 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Random;
 
 public class MainSimulationWindow {
 
@@ -33,7 +35,7 @@ public class MainSimulationWindow {
     private final DrawingPanel drawingPanel;
     private final JPanel controlPanel;
     private final JButton startButton,addNodeButton, addBlockButton, saveButton, loadButton, nextButton, playButton,
-            pauseButton, skipButton;
+            pauseButton, skipButton, generateButton;
     private final JPanel statsPanel = new JPanel(), receivedPanel = new JPanel();
 
     private final ModeFactory modes = new ModeFactory(this);
@@ -84,9 +86,13 @@ public class MainSimulationWindow {
 
         Dimension BIG_BUTTON_SIZE = new Dimension(220, 30);
         Dimension SMALL_BUTTON_SIZE = new Dimension(100, 30);
+
         startButton = createButton("Start", e -> startButton(), BIG_BUTTON_SIZE);
+        generateButton = createButton("Generate", e -> generateButton(), BIG_BUTTON_SIZE);
+
         addNodeButton = createModeChangeButton("Add Node", modes.ADD_NODE ,SMALL_BUTTON_SIZE);
         addBlockButton = createModeChangeButton("Add Block", modes.ADD_BLOCK, SMALL_BUTTON_SIZE);
+
         saveButton = createButton("Save", e -> saveButton(), SMALL_BUTTON_SIZE);
         loadButton = createButton("Load", e -> loadButton(), SMALL_BUTTON_SIZE);
 
@@ -133,6 +139,11 @@ public class MainSimulationWindow {
         controlPanel.repaint();
     }
 
+    private void generateButton() {
+        GenerationWindow genWindow = new GenerationWindow(frame);
+        setShapes(genWindow.getGeneratedGraph());
+    }
+
     private void saveButton() {
         String filePath = PathChooser.writePath(Constants.PRESETS_DIRECTORY);
         if (filePath != null) Storage.saveTo(nodes, blocks, filePath);
@@ -141,7 +152,7 @@ public class MainSimulationWindow {
         String filePath = PathChooser.choosePath(Constants.PRESETS_DIRECTORY);
         if (filePath == null) return;
         List<ShapeGUI> shapes = Storage.loadFrom(filePath);
-        if (shapes != null) setShapes(shapes);
+        setShapes(shapes);
     }
     private void nextButton() {
         tick();
@@ -179,7 +190,7 @@ public class MainSimulationWindow {
         nodes.add(node);
         drawingPanel.repaint();
     }
-    public void addEdge(NodeGUI node1, NodeGUI node2) {
+    private void addEdge(NodeGUI node1, NodeGUI node2) {
         EdgeGUI edge = new EdgeGUI(node1, node2);
         edges.add(edge);
         drawingPanel.repaint();
@@ -233,6 +244,8 @@ public class MainSimulationWindow {
     }
 
     public void setShapes(List<ShapeGUI> shapes) {
+        if (shapes == null) return;
+
         List<NodeGUI> nodes = new ArrayList<>();
         List<BlockGUI> blocks = new ArrayList<>();
         for (ShapeGUI shape : shapes) {
@@ -292,6 +305,9 @@ public class MainSimulationWindow {
         gbc.gridy = 0;
         gbc.gridwidth = 2;
         controlPanel.add(startButton, gbc);
+
+        gbc.gridy++;
+        controlPanel.add(generateButton, gbc);
 
         gbc.gridwidth = 1;
         gbc.gridy++;
@@ -517,4 +533,5 @@ public class MainSimulationWindow {
     public void setTransform(ScreenTransform t) {
         transform = t;
     }
+
 }

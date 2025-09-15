@@ -18,13 +18,20 @@ public class NodeGUI implements ShapeGUI, Serializable {
         node = new Node(id, position);
         setTransmitter(Constants.DEFAULT_TRANSMITTER_TYPE);
     }
+    public NodeGUI(Node node) {
+        this.node = node;
+        if (node.getTransmitterType() != null)
+            setColor(node.getTransmitterType().getColor());
+        else
+            setTransmitter(Constants.DEFAULT_TRANSMITTER_TYPE);
+    }
 
     public Position getPosition() { return node.position; }
     public int getId() { return node.id; }
     public void setColor(Color color) { this.color = color; }
 
     public void setTransmitter(TransmitterType type) {
-        node.setTransmitter(type.create(node));
+        node.setTransmitterByType(type);
         setColor(type.getColor());
     }
 
