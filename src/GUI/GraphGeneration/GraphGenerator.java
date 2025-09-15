@@ -1,9 +1,9 @@
-package GUI;
+package GUI.GraphGeneration;
 
+import GUI.Constants;
 import GUI.shapesGUI.BlockGUI;
 import GUI.shapesGUI.NodeGUI;
 import GUI.shapesGUI.ShapeGUI;
-import logic.communication.Scheduler;
 import logic.communication.transmitters.TransmitterType;
 import logic.graph_objects.Node;
 import logic.physics.Block;
@@ -17,7 +17,7 @@ import java.util.Random;
 
 public class GraphGenerator {
 
-    private Random rand;
+    private final Random rand;
 
     private static final int WORLD_SIZE = 1000;
 

@@ -1,5 +1,6 @@
 package GUI;
 
+import GUI.GraphGeneration.GenerationWindow;
 import GUI.elevation.ElevationLegend;
 import GUI.modes.Mode;
 import GUI.modes.ModeFactory;
@@ -11,7 +12,6 @@ import logic.Statistics;
 import logic.Storage;
 import logic.communication.Message;
 import logic.communication.Ticker;
-import logic.communication.transmitters.TransmitterType;
 import logic.graph_objects.Graph;
 import logic.graph_objects.Node;
 import logic.physics.Block;
@@ -27,7 +27,6 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Random;
 
 public class MainSimulationWindow {
 

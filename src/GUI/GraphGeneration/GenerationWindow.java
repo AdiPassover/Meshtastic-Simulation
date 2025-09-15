@@ -1,10 +1,11 @@
-package GUI;
+package GUI.GraphGeneration;
 
 import GUI.shapesGUI.ShapeGUI;
 import logic.communication.transmitters.TransmitterType;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -13,18 +14,19 @@ public class GenerationWindow extends JDialog {
     public static final int DEFAULT_NUM_NODES = 40;
     public static final int DEFAULT_NUM_BLOCKS = 5;
     public static final int DEFAULT_NUM_MESSAGES = 1;
-    public static final int DEFAULT_FINAL_TICK = 20;
+    public static final int DEFAULT_NUM_TICKS = 20;
     public static final int DEFAULT_SEED = 420;
 
     private final JTextField nodesField;
     private final JTextField blocksField;
     private final JTextField messagesField;
-    private final JTextField finalTickField;
+    private final JTextField numTicksField;
     private final JComboBox<String> transmitterTypeBox;
     private final JTextField seedField;
 
     private int rerollSeed = new Random().nextInt();
 
+    private boolean[] isMessageTick = null;
     private List<ShapeGUI> generatedGraph;
 
     public GenerationWindow(JFrame parent) {
@@ -33,34 +35,28 @@ public class GenerationWindow extends JDialog {
 
         JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
 
-        // Nodes
         formPanel.add(new JLabel("Number of nodes:"));
         nodesField = new JTextField(String.valueOf(DEFAULT_NUM_NODES));
         formPanel.add(nodesField);
 
-        // Blocks
         formPanel.add(new JLabel("Number of blocks:"));
         blocksField = new JTextField(String.valueOf(DEFAULT_NUM_BLOCKS));
         formPanel.add(blocksField);
 
-        // Messages per tick
         formPanel.add(new JLabel("Messages per tick:"));
         messagesField = new JTextField(String.valueOf(DEFAULT_NUM_MESSAGES));
         formPanel.add(messagesField);
 
-        // Final message tick
-        formPanel.add(new JLabel("Final message tick:"));
-        finalTickField = new JTextField(String.valueOf(DEFAULT_FINAL_TICK));
-        formPanel.add(finalTickField);
+        formPanel.add(new JLabel("Num messages ticks:"));
+        numTicksField = new JTextField(String.valueOf(DEFAULT_NUM_TICKS));
+        formPanel.add(numTicksField);
 
-        // Protocol dropdown
         formPanel.add(new JLabel("TransmitterType:"));
         String[] transmitterNames = TransmitterType.getTransmitterTypeNames();
         transmitterTypeBox = new JComboBox<>(transmitterNames);
         transmitterTypeBox.setSelectedIndex(0);
         formPanel.add(transmitterTypeBox);
 
-        // Seed with reroll
         formPanel.add(new JLabel("Seed:"));
         JPanel seedPanel = new JPanel(new BorderLayout());
         seedField = new JTextField(String.valueOf(DEFAULT_SEED));
@@ -73,36 +69,37 @@ public class GenerationWindow extends JDialog {
         seedPanel.add(rerollButton, BorderLayout.EAST);
         formPanel.add(seedPanel);
 
-        // Configure ticks button
         JButton configTicksButton = new JButton("Configure ticks");
         configTicksButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this,
-                    "Not implemented", //TODO: Add tick configuration window
-                    "Configure Ticks",
-                    JOptionPane.INFORMATION_MESSAGE);
+            int numTicks = Integer.parseInt(numTicksField.getText());
+            TickConfigurationWindow tickWindow = new TickConfigurationWindow((JFrame) getParent(), numTicks, isMessageTick);
+            tickWindow.setVisible(true);
+            boolean[] configured = tickWindow.getResult();
+            if (configured != null) {
+                isMessageTick = configured;
+            }
         });
 
-        // Done button
         JButton doneButton = new JButton("Done");
         doneButton.addActionListener(e -> {
             // Example: Collect inputs here and call generator
             int numNodes = Integer.parseInt(nodesField.getText());
             int numBlocks = Integer.parseInt(blocksField.getText());
             int numMessages = Integer.parseInt(messagesField.getText());
-            int finalTick = Integer.parseInt(finalTickField.getText());
+            int numTicks = Integer.parseInt(numTicksField.getText());
             TransmitterType chosenType = TransmitterType.fromString((String) transmitterTypeBox.getSelectedItem());
             long seed = Long.parseLong(seedField.getText());
 
-            System.out.println("Generating with params:");
-            System.out.println("Nodes=" + numNodes + ", Blocks=" + numBlocks +
-                    ", Msg/tick=" + numMessages + ", FinalTick=" + finalTick +
-                    ", Protocol=" + chosenType +
-                    ", Seed=" + seed);
+            boolean[] ticks;
+            if (isMessageTick != null) {
+                ticks = isMessageTick;
+            } else {
+                ticks = new boolean[numTicks];
+                Arrays.fill(ticks, true);
+            }
 
             GraphGenerator graphGenerator = new GraphGenerator(seed);
-            boolean[] isMessageTick = new boolean[finalTick + 1];
-            for (int i = 0; i < isMessageTick.length; ++i) isMessageTick[i] = true; // TODO: Change based on tick configuration
-            generatedGraph = graphGenerator.generate(numNodes, numBlocks, numMessages, chosenType, isMessageTick); // TODO add tick configuration and change null here
+            generatedGraph = graphGenerator.generate(numNodes, numBlocks, numMessages, chosenType, ticks);
             dispose();
         });
 
