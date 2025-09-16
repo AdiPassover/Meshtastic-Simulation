@@ -34,9 +34,9 @@ public final class Constants {
 
     public static final Color CHOSEN_BUTTON_COLOR = new Color(173, 216, 230);
 
-    public static final String PRESETS_DIRECTORY = System.getProperty("user.dir")+ File.separator+"src"+File.separator+"presets";
-    public static final String SCHEDULES_DIRECTORY = System.getProperty("user.dir")+ File.separator+"src"+File.separator+"schedules";
-
+    public static final String PRESETS_DIRECTORY = System.getProperty("user.dir") + File.separator + "src" + File.separator + "presets";
+    public static final String SCHEDULES_DIRECTORY = System.getProperty("user.dir") + File.separator+"src" + File.separator + "schedules";
 
     public static final double ZOOM_PER_WHEEL_CLICK = 1.1;
+    public static final File BACKGROUND_IMAGE_FILE = new File("background.png");
 }

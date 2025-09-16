@@ -27,7 +27,6 @@ public class BlankMode extends Mode {
             return;
         }
         draggingPosition = mainWindow.getTransform().screenToWorld(new Point(x, y));
-        System.out.println("Dragging from position: " + draggingPosition);
     }
     @Override public void mouseHover(int x, int y) {
         if (draggingPosition == null) return;
@@ -39,10 +38,12 @@ public class BlankMode extends Mode {
     @Override
     public void mouseRightClick(int x, int y) {
         ShapeGUI shape = mainWindow.getShapeAt(x, y);
-        if (shape == null) return;
-
-        if (shape instanceof BlockGUI b) showBlockPopup(b, x, y);
-        else if (shape instanceof NodeGUI n) showNodePopup(n, x, y);
+      switch (shape) {
+        case BlockGUI b -> showBlockPopup(b, x, y);
+        case NodeGUI n -> showNodePopup(n, x, y);
+        case null, default -> {
+        }
+      }
     }
 
     @Override
@@ -65,7 +66,7 @@ public class BlankMode extends Mode {
         JPopupMenu popup = new JPopupMenu();
 
         JMenuItem transmitterItem = new JMenuItem("Change Transmitter");
-        transmitterItem.addActionListener(e -> {
+        transmitterItem.addActionListener(_ -> {
             String[] transmitterNames = TransmitterType.getTransmitterTypeNames();
             String chosenTypeStr = (String) JOptionPane.showInputDialog(
                     mainWindow.getFrame(),
@@ -82,7 +83,7 @@ public class BlankMode extends Mode {
         });
 
         JMenuItem scheduleItem = new JMenuItem("Schedule");
-        scheduleItem.addActionListener(e -> {
+        scheduleItem.addActionListener(_ -> {
             Transmitter transmitter = node.node.getTransmitter();
             if (transmitter == null) {
                 JOptionPane.showMessageDialog(mainWindow.getFrame(),
@@ -97,7 +98,7 @@ public class BlankMode extends Mode {
         });
 
         JMenuItem removeItem = new JMenuItem("Remove");
-        removeItem.addActionListener(e -> mainWindow.removeNode(node));
+        removeItem.addActionListener(_ -> mainWindow.removeNode(node));
 
         popup.add(transmitterItem);
         popup.add(scheduleItem);
@@ -109,7 +110,7 @@ public class BlankMode extends Mode {
     private void showBlockPopup(BlockGUI block, int x, int y) {
         JPopupMenu popup = new JPopupMenu();
         JMenuItem removeItem = new JMenuItem("Remove");
-        removeItem.addActionListener(e -> mainWindow.removeBlock(block));
+        removeItem.addActionListener(_ -> mainWindow.removeBlock(block));
         popup.add(removeItem);
         popup.show(mainWindow.getFrame(), x, y);
     }
