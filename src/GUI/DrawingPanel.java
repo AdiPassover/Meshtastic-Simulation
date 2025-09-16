@@ -54,26 +54,30 @@ public class DrawingPanel extends JPanel {
 
     private void drawBackgroundImages(Graphics g) {
         // find current display bounds
-        Position p0 = new Position(mainWindow.getTransform().x(), mainWindow.getTransform().y());
+        Position p0 = mainWindow.getTransform().screenToWorld(new Point(0, 0));
         Position p1 = mainWindow.getTransform().screenToWorld(new Point(getWidth(), getHeight()));
+
         // get image dimensions
-        int w = (int) (mainWindow.getTransform().zoom() * backgroundImage.getWidth(null));
-        int h = (int) (mainWindow.getTransform().zoom() * backgroundImage.getHeight(null));
+        double zoom = mainWindow.getTransform().zoom();
+        double w = backgroundImage.getWidth(null);
+        double h = backgroundImage.getHeight(null);
 
-        Point start = mainWindow.getTransform().worldToScreen(new Position(p0.x - (p0.x % w), p0.y - (p0.y % h)));
-        Point end = mainWindow.getTransform().worldToScreen(new Position(p1.x - (p1.x % w), p1.y - (p1.y % h)));
+        java.util.function.BiFunction<Double, Double, Double> goodMod = (a, b) -> ((a % b) + b) % b;
 
-        int drawX = start.x - w;
-        int drawY = start.y - h;
+        Point start = mainWindow.getTransform().worldToScreen(new Position(p0.x - (goodMod.apply(p0.x, w)), p0.y - (goodMod.apply(p0.y, h))));
+        Point end = mainWindow.getTransform().worldToScreen(new Position(p1.x - (goodMod.apply(p1.x, w)) + 1, p1.y - (goodMod.apply(p1.y, h)) + 1));
+
+        int drawX = start.x;
+        int drawY = start.y;
 
         // iterate and draw image repeatedly
-        while (drawX < end.x + w) {
-            while (drawY < end.y + h) {
-                g.drawImage(backgroundImage, drawX, drawY, w, h, null);
-                drawY += h;
+        while (drawX < end.x + (w * zoom)) {
+            while (drawY < end.y + (h * zoom)) {
+                g.drawImage(backgroundImage, drawX, drawY, (int) (w * zoom), (int) (h * zoom), null);
+                drawY += (int) (h * zoom);
             }
-            drawX += w;
-            drawY = start.y - h;
+            drawX += (int) (w * zoom);
+            drawY = start.y - (int) (h * zoom);
         }
     }
 
