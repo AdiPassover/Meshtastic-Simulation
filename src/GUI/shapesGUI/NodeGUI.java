@@ -30,7 +30,8 @@ public class NodeGUI implements ShapeGUI, Serializable {
 
     @Override
     public boolean contains(int x, int y, ScreenTransform transform) {
-        return node.position.distance2D(transform.screenToWorld(new Point(x, y))) <= Constants.NODE_RADIUS; // TODO: take zoom into account?
+        // TODO: take zoom into account? related to drawing size
+        return node.position.distance2D(transform.screenToWorld(new Point(x, y))) <= Constants.NODE_RADIUS;
     }
 
 
