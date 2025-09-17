@@ -1,6 +1,6 @@
 package GUI;
 
-import GUI.GraphGeneration.GenerationWindow;
+import GUI.generation.GenerationWindow;
 import GUI.elevation.ElevationLegend;
 import GUI.modes.Mode;
 import GUI.modes.ModeFactory;
@@ -32,7 +32,8 @@ public class MainSimulationWindow {
 
     private final JFrame frame;
     private final DrawingPanel drawingPanel;
-    private final JPanel controlPanel;
+    private final JPanel controlPanel, transformPanel;
+    private final JLabel[] transformLabels = { createTransformLabel("X: 0"), createTransformLabel("Y: 0"), createTransformLabel("Zoom: 1.0x") };
     private final JButton startButton,addNodeButton, addBlockButton, saveButton, loadButton, nextButton, playButton,
             pauseButton, skipButton, generateButton;
     private final JPanel statsPanel = new JPanel(), receivedPanel = new JPanel();
@@ -76,12 +77,30 @@ public class MainSimulationWindow {
             @Override public void mouseMoved(MouseEvent e) {
                 currentMode.mouseHover(e.getX(), e.getY());
             }
-            // TODO: make dragging use mouseDragged?
+            @Override public void mouseDragged(MouseEvent e) {
+                currentMode.mouseDrag(e.getX(), e.getY());
+            }
         });
 
         drawingPanel.addMouseWheelListener(e -> currentMode.mouseWheelRotate(e.getWheelRotation(), e.getLocationOnScreen().x, e.getLocationOnScreen().y));    // TODO: use precise?
 
         controlPanel = new JPanel(new GridBagLayout());
+
+        transformPanel = new JPanel(new FlowLayout());
+        transformPanel.setLayout(new GridLayout(3, 1, 5, 5)); // 3 rows, spacing between
+        transformPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.BLACK, 2),
+                "Transform",
+                TitledBorder.CENTER,
+                TitledBorder.TOP,
+                new Font("SansSerif", Font.BOLD, 16),
+                Color.BLACK
+        ));
+        transformPanel.setBackground(new Color(240, 240, 240));
+        for (JLabel label : transformLabels) {
+            label.setFont(new Font("Arial", Font.PLAIN, 14));
+            transformPanel.add(label);
+        }
 
         Dimension BIG_BUTTON_SIZE = new Dimension(220, 30);
         Dimension SMALL_BUTTON_SIZE = new Dimension(100, 30);
@@ -117,6 +136,16 @@ public class MainSimulationWindow {
     private void setCurrentMode(Mode mode) { currentMode.close(); currentMode = mode; currentMode.open(); }
     public boolean isBuilding() { return isBuilding; }
 
+    private static JLabel createTransformLabel(String text) {
+        JLabel label = new JLabel(text, SwingConstants.CENTER);
+        label.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        label.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+        label.setPreferredSize(new Dimension(100, 25)); // fixed size
+        label.setMinimumSize(new Dimension(100, 25));
+        label.setMaximumSize(new Dimension(100, 25));
+        return label;
+    }
+
     private void startButton() {
         isBuilding = !isBuilding;
         controlPanel.removeAll();
@@ -144,11 +173,11 @@ public class MainSimulationWindow {
     }
 
     private void saveButton() {
-        String filePath = PathChooser.writePath(Constants.PRESETS_DIRECTORY);
+        String filePath = PathChooser.writePath(GUIConstants.PRESETS_DIRECTORY);
         if (filePath != null) Storage.saveTo(nodes, blocks, filePath);
     }
     private void loadButton() {
-        String filePath = PathChooser.choosePath(Constants.PRESETS_DIRECTORY);
+        String filePath = PathChooser.choosePath(GUIConstants.PRESETS_DIRECTORY);
         if (filePath == null) return;
         List<ShapeGUI> shapes = Storage.loadFrom(filePath);
         setShapes(shapes);
@@ -272,11 +301,8 @@ public class MainSimulationWindow {
     public JFrame getFrame() { return frame; }
 
     public double getHeightAt(int x, int y) {
-        double maxHeight = Constants.MINIMUM_HEIGHT - 1;
-        for (BlockGUI b : blocks)
-            if (b.contains(x, y, getTransform())) maxHeight = Math.max(maxHeight, b.getHeight());
-
-        return maxHeight != Constants.MINIMUM_HEIGHT - 1 ? maxHeight : 0.0;
+        Position pos = getTransform().screenToWorld(new Point(x, y));
+        return physics.getHeightAt(pos.x, pos.y);
     }
 
     public ShapeGUI getShapeAt(int x, int y) {
@@ -289,9 +315,8 @@ public class MainSimulationWindow {
         return null;
     }
 
-    private boolean shouldAddEdge(NodeGUI node1, NodeGUI node2) {
-        return physics.probabilityOfMessagePassing(node1.node, node2.node) > 0.0 &&
-                !node1.node.hasNeighbour(node2.node);
+    private boolean shouldAddEdge(NodeGUI node1, NodeGUI node2) {  // check physics, and they are not already connected
+        return physics.shouldAddEdge(node1.node, node2.node) && !node1.node.hasNeighbour(node2.node);
     }
 
     private void layoutBuildComponents() {
@@ -321,6 +346,17 @@ public class MainSimulationWindow {
 
         gbc.gridx = 1;
         controlPanel.add(loadButton, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        gbc.gridwidth = 2;
+        controlPanel.add(Box.createVerticalGlue(), gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth = 2;
+        controlPanel.add(transformPanel, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;
@@ -444,6 +480,10 @@ public class MainSimulationWindow {
         receivedPanel.setBackground(new Color(230, 230, 230)); // Light gray
 
         controlPanel.add(receivedPanel, gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth = 2;
+        controlPanel.add(transformPanel, gbc);
     }
 
     private void updateStats() {
@@ -492,7 +532,7 @@ public class MainSimulationWindow {
     }
 
     private void highlightButton(JButton button) {
-        button.setBackground(Constants.CHOSEN_BUTTON_COLOR); // Light blue background
+        button.setBackground(GUIConstants.CHOSEN_BUTTON_COLOR); // Light blue background
         button.setForeground(Color.BLACK);
 
         for (Component comp : controlPanel.getComponents()) {
@@ -512,7 +552,7 @@ public class MainSimulationWindow {
         JButton button = new JButton(text);
         button.setPreferredSize(size);
         button.addActionListener(e -> {
-            if (button.getBackground() == Constants.CHOSEN_BUTTON_COLOR) {
+            if (button.getBackground() == GUIConstants.CHOSEN_BUTTON_COLOR) {
                 setCurrentMode(modes.BLANK);
                 button.setBackground(null);
                 button.setForeground(null);
@@ -531,6 +571,13 @@ public class MainSimulationWindow {
 
     public void setTransform(ScreenTransform t) {
         transform = t;
+        updateTransformLabels();
+    }
+
+    private void updateTransformLabels() {
+        transformLabels[0].setText(String.format("X: %.2f", transform.x()));
+        transformLabels[1].setText(String.format("Y: %.2f", transform.y()));
+        transformLabels[2].setText(String.format("Zoom: %.4f", transform.zoom()));
     }
 
 }

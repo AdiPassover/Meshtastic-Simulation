@@ -1,6 +1,6 @@
 package GUI.shapesGUI;
 
-import GUI.Constants;
+import GUI.GUIConstants;
 import GUI.ScreenTransform;
 import logic.physics.Position;
 
@@ -23,8 +23,8 @@ public class EdgeGUI implements ShapeGUI {
 
     @Override
     public void drawShape(Graphics2D g, ScreenTransform transform) {
-        g.setColor(Constants.EDGE_COLOR);
-        g.setStroke(Constants.EDGE_STROKE); // TODO: adjust by zoom?
+        g.setColor(GUIConstants.EDGE_COLOR);
+        g.setStroke(GUIConstants.EDGE_STROKE); // TODO: adjust by zoom? (A: not necessary IMO)
         Point drawLoc1 = transform.worldToScreen(new Position(node1.node.x(), node1.node.y()));
         Point drawLoc2 = transform.worldToScreen(new Position(node2.node.x(), node2.node.y()));
 

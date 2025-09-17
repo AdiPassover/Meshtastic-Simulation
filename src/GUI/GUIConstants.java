@@ -5,7 +5,7 @@ import logic.communication.transmitters.TransmitterType;
 import java.awt.*;
 import java.io.File;
 
-public final class Constants {
+public final class GUIConstants {
 
     public static final int NODE_RADIUS = 25;
     public static final Color NODE_COLOR = Color.BLACK;
@@ -25,9 +25,9 @@ public final class Constants {
 
     // Height constants for the slider
     public static final int MINIMUM_HEIGHT = -100;
-    public static final int BLUE_HEIGHT = -30;
+    public static final int BLUE_HEIGHT = -35;
     public static final int GREEN_HEIGHT = -10;
-    public static final int YELLOW_HEIGHT = 60;
+    public static final int YELLOW_HEIGHT = 35;
     public static final int MAXIMUM_HEIGHT = 100;
 
     public static final TransmitterType DEFAULT_TRANSMITTER_TYPE = TransmitterType.FLOODING;

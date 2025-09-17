@@ -1,6 +1,6 @@
-package GUI.GraphGeneration;
+package GUI.generation;
 
-import GUI.Constants;
+import GUI.GUIConstants;
 import GUI.shapesGUI.BlockGUI;
 import GUI.shapesGUI.NodeGUI;
 import GUI.shapesGUI.ShapeGUI;
@@ -19,19 +19,15 @@ public class GraphGenerator {
 
     private final Random rand;
 
-    private static final int WORLD_SIZE = 1000;
+    private static final int WORLD_WIDTH = 3850;
+    private static final int WORLD_HEIGHT = 2500;
 
     private static final Polygon[] PRESET_BLOCK_SHAPE = {
-            // Triangle
-            new Polygon(new int[]{0, 50, 25}, new int[]{0, 0, 43}, 3),
-            // Right Angled Triangle
-            new Polygon(new int[]{0, 50, 0}, new int[]{0, 0, 50}, 3),
-            // Square
-            new Polygon(new int[]{0, 50, 50, 0}, new int[]{0, 0, 50, 50}, 4),
-            // Rectangle
-            new Polygon(new int[]{0, 70, 70, 0}, new int[]{0, 0, 50, 50}, 4),
-            // Pentagon
-            new Polygon(new int[]{25, 50, 40, 10, 0}, new int[]{0, 15, 45, 45, 15}, 5),
+            new Polygon(new int[]{0, 50, 25}, new int[]{0, 0, 43}, 3),                  // Triangle
+            new Polygon(new int[]{0, 50, 0}, new int[]{0, 0, 50}, 3),                   // Right Angled Triangle
+            new Polygon(new int[]{0, 50, 50, 0}, new int[]{0, 0, 50, 50}, 4),           // Square
+            new Polygon(new int[]{0, 70, 70, 0}, new int[]{0, 0, 50, 50}, 4),           // Rectangle
+            new Polygon(new int[]{25, 50, 40, 10, 0}, new int[]{0, 15, 45, 45, 15}, 5), // Pentagon
     };
 
 
@@ -55,8 +51,8 @@ public class GraphGenerator {
     private List<Node> generateNodes(int numNodes, List<Block> blocks, TransmitterType type) {
         List<Node> nodes = new ArrayList<>();
         for (int i = 0; i < numNodes; ++i) {
-            double x = rand.nextDouble() * WORLD_SIZE;
-            double y = rand.nextDouble() * WORLD_SIZE;
+            double x = rand.nextDouble() * WORLD_WIDTH;
+            double y = rand.nextDouble() * WORLD_HEIGHT;
             nodes.add(new Node(i, new Position(x, y, PhysicsEngine.getHeightAt(x, y, blocks)), type));
         }
         return nodes;
@@ -66,11 +62,9 @@ public class GraphGenerator {
         List<Block> blocks = new ArrayList<>();
 
         for (int i = 0; i < numBlocks; ++i) {
-            double x = rand.nextDouble() * WORLD_SIZE;
-            double y = rand.nextDouble() * WORLD_SIZE;
-            double height = rand.nextGaussian(0, 50);
-            height = Math.max(height, Constants.MINIMUM_HEIGHT);
-            height = Math.min(height, Constants.MAXIMUM_HEIGHT);
+            double x = sampleGaussianInRange(WORLD_WIDTH*0.5, WORLD_WIDTH*0.2, 0, WORLD_WIDTH);
+            double y = sampleGaussianInRange(WORLD_HEIGHT*0.5, WORLD_HEIGHT*0.2, 0, WORLD_HEIGHT);
+            double height = sampleGaussianInRange(30, 25, GUIConstants.MINIMUM_HEIGHT, GUIConstants.MAXIMUM_HEIGHT);  // slightly skewed upwards to block more lines
             int shapeIndex = rand.nextInt(PRESET_BLOCK_SHAPE.length);
             Polygon shape = new Polygon(PRESET_BLOCK_SHAPE[shapeIndex].xpoints,
                                         PRESET_BLOCK_SHAPE[shapeIndex].ypoints,
@@ -98,6 +92,11 @@ public class GraphGenerator {
                 n.getTransmitter().scheduleMessage(payload, destId, tick);
             }
         }
+    }
+
+    private double sampleGaussianInRange(double mean, double std, double min, double max) {
+        double value = rand.nextGaussian(mean, std);
+        return Math.clamp(value, min, max);
     }
 
 }

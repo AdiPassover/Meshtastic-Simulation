@@ -1,6 +1,5 @@
 package GUI.modes;
 
-import GUI.Constants;
 import GUI.MainSimulationWindow;
 import GUI.shapesGUI.NodeGUI;
 import logic.physics.Position;
@@ -24,15 +23,8 @@ public class AddNodeMode extends Mode {
 
     @Override
     public void mouseHover(int x, int y) {
-        Consumer<Graphics2D> previewDrawer = (g) -> drawPreview(g, x, y);
+        Consumer<Graphics2D> previewDrawer = (g) -> NodeGUI.drawPreview(g, x, y, mainWindow.getTransform());
         mainWindow.getDrawingPanel().setPreview(previewDrawer);
-    }
-
-    private void drawPreview(Graphics2D g, int x, int y) {
-        int size = Constants.NODE_RADIUS;
-        g.setColor(Constants.PREVIEW_COLOR);
-        g.setStroke(Constants.PREVIEW_STROKE);
-        g.drawOval(x - size, y - size, 2 * size, 2 * size);
     }
 
     @Override

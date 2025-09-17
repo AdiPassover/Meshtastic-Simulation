@@ -1,6 +1,6 @@
 package GUI.modes;
 
-import GUI.Constants;
+import GUI.GUIConstants;
 import GUI.elevation.ElevationSlider;
 import GUI.MainSimulationWindow;
 import GUI.shapesGUI.BlockGUI;
@@ -70,8 +70,8 @@ public class AddBlockMode extends Mode {
         }
         xs[points.size()] = x;
         ys[points.size()] = y;
-        g.setColor(Constants.PREVIEW_COLOR);
-        g.setStroke(Constants.PREVIEW_STROKE);
+        g.setColor(GUIConstants.PREVIEW_COLOR);
+        g.setStroke(GUIConstants.PREVIEW_STROKE);
         g.drawPolygon(xs, ys, points.size() + 1);
     }
 

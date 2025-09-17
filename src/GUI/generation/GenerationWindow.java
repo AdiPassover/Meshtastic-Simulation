@@ -1,4 +1,4 @@
-package GUI.GraphGeneration;
+package GUI.generation;
 
 import GUI.shapesGUI.ShapeGUI;
 import logic.communication.transmitters.TransmitterType;
@@ -11,9 +11,9 @@ import java.util.Random;
 
 public class GenerationWindow extends JDialog {
 
-    public static final int DEFAULT_NUM_NODES = 40;
-    public static final int DEFAULT_NUM_BLOCKS = 5;
-    public static final int DEFAULT_NUM_MESSAGES = 1;
+    public static final int DEFAULT_NUM_NODES = 100;
+    public static final int DEFAULT_NUM_BLOCKS = 100;
+    public static final int DEFAULT_NUM_MESSAGES = 20;
     public static final int DEFAULT_NUM_TICKS = 20;
     public static final int DEFAULT_SEED = 420;
 

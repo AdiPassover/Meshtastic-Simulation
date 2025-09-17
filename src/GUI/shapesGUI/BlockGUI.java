@@ -1,6 +1,6 @@
 package GUI.shapesGUI;
 
-import GUI.Constants;
+import GUI.GUIConstants;
 import GUI.ScreenTransform;
 import GUI.elevation.ElevationSlider;
 import logic.physics.Block;
@@ -42,7 +42,7 @@ public class BlockGUI implements ShapeGUI, Serializable {
         g.setColor(color);
         g.fill(drawPolygon);
 
-        g.setColor(Constants.BLOCK_OUTLINE_COLOR);
+        g.setColor(GUIConstants.BLOCK_OUTLINE_COLOR);
         g.draw(drawPolygon);
     }
 

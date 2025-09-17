@@ -7,7 +7,3 @@ public class Main {
         SwingUtilities.invokeLater(MainSimulationWindow::new);
     }
 }
-
-
-// TODO:
-// GUI- remove, edit, save/load

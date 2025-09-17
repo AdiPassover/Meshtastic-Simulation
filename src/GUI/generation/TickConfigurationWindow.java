@@ -1,4 +1,4 @@
-package GUI.GraphGeneration;
+package GUI.generation;
 
 import javax.swing.*;
 import java.awt.*;

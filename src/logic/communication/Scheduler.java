@@ -1,5 +1,6 @@
 package logic.communication;
 
+import logic.LogicConstants;
 import logic.communication.transmitters.Transmitter;
 
 import java.io.BufferedReader;
@@ -21,9 +22,9 @@ public class Scheduler {
                 String[] parts = line.split(",");
                 if (parts.length != 3) continue; // Skip invalid lines
 
-                int sendTick = Integer.parseInt(parts[Constants.CSV_TICK_COL].trim());
-                String payload = parts[Constants.CSV_PAYLOAD_COL].trim();
-                int receiverId = Integer.parseInt(parts[Constants.CSV_RECV_COL].trim());
+                int sendTick = Integer.parseInt(parts[LogicConstants.CSV_TICK_COL].trim());
+                String payload = parts[LogicConstants.CSV_PAYLOAD_COL].trim();
+                int receiverId = Integer.parseInt(parts[LogicConstants.CSV_RECV_COL].trim());
 
                 transmitter.scheduleMessage(payload, receiverId, sendTick);
             }
