@@ -4,7 +4,7 @@ import GUI.MainSimulationWindow;
 
 public abstract class Mode {
 
-    protected MainSimulationWindow mainWindow;
+    protected final MainSimulationWindow mainWindow;
 
     public Mode(MainSimulationWindow mainWindow) { this.mainWindow = mainWindow; }
 

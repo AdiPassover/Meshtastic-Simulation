@@ -82,7 +82,7 @@ public class MainSimulationWindow {
             }
         });
 
-        drawingPanel.addMouseWheelListener(e -> currentMode.mouseWheelRotate(e.getWheelRotation(), e.getLocationOnScreen().x, e.getLocationOnScreen().y));    // TODO: use precise?
+        drawingPanel.addMouseWheelListener(e -> currentMode.mouseWheelRotate(e.getWheelRotation(), e.getLocationOnScreen().x, e.getLocationOnScreen().y));
 
         controlPanel = new JPanel(new GridBagLayout());
 
@@ -105,24 +105,24 @@ public class MainSimulationWindow {
         Dimension BIG_BUTTON_SIZE = new Dimension(220, 30);
         Dimension SMALL_BUTTON_SIZE = new Dimension(100, 30);
 
-        startButton = createButton("Start", e -> startButton(), BIG_BUTTON_SIZE);
-        generateButton = createButton("Generate", e -> generateButton(), BIG_BUTTON_SIZE);
+        startButton = createButton("Start", _ -> startButton(), BIG_BUTTON_SIZE);
+        generateButton = createButton("Generate", _ -> generateButton(), BIG_BUTTON_SIZE);
 
         addNodeButton = createModeChangeButton("Add Node", modes.ADD_NODE ,SMALL_BUTTON_SIZE);
         addBlockButton = createModeChangeButton("Add Block", modes.ADD_BLOCK, SMALL_BUTTON_SIZE);
 
-        saveButton = createButton("Save", e -> saveButton(), SMALL_BUTTON_SIZE);
-        loadButton = createButton("Load", e -> loadButton(), SMALL_BUTTON_SIZE);
+        saveButton = createButton("Save", _ -> saveButton(), SMALL_BUTTON_SIZE);
+        loadButton = createButton("Load", _ -> loadButton(), SMALL_BUTTON_SIZE);
 
-        nextButton = createButton("Next", e -> nextButton(), SMALL_BUTTON_SIZE);
-        playButton = createButton("Play", e -> playButton(), SMALL_BUTTON_SIZE);
-        pauseButton = createButton("Pause", e -> pauseButton(), SMALL_BUTTON_SIZE);
-        skipButton = createButton("Skip to End", e -> skipButton(), SMALL_BUTTON_SIZE);
+        nextButton = createButton("Next", _ -> nextButton(), SMALL_BUTTON_SIZE);
+        playButton = createButton("Play", _ -> playButton(), SMALL_BUTTON_SIZE);
+        pauseButton = createButton("Pause", _ -> pauseButton(), SMALL_BUTTON_SIZE);
+        skipButton = createButton("Skip to End", _ -> skipButton(), SMALL_BUTTON_SIZE);
 
         layoutBuildComponents();
         frame.setVisible(true);
 
-        playTimer = new Timer(0, e -> {
+        playTimer = new Timer(0, _ -> {
             if (!ticker.isFinished()) {
                 tick();
             } else {
@@ -416,7 +416,7 @@ public class MainSimulationWindow {
         double realMax = 2.0;
 
         JSlider speedSlider = new JSlider(sliderMin, sliderMax, 10); // initial value = 1.0
-        speedSlider.addChangeListener(e -> {
+        speedSlider.addChangeListener(_ -> {
             int sliderValue = speedSlider.getValue();
             currentDelay = realMin + (realMax - realMin) * (sliderValue - sliderMin) / (sliderMax - sliderMin);
         });
@@ -551,7 +551,7 @@ public class MainSimulationWindow {
     private JButton createModeChangeButton(String text, Mode mode, Dimension size) {
         JButton button = new JButton(text);
         button.setPreferredSize(size);
-        button.addActionListener(e -> {
+        button.addActionListener(_ -> {
             if (button.getBackground() == GUIConstants.CHOSEN_BUTTON_COLOR) {
                 setCurrentMode(modes.BLANK);
                 button.setBackground(null);

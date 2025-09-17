@@ -13,10 +13,10 @@ public class ElevationSlider extends JPanel {
     private double selectedHeight;
     private final Consumer<Double> onSelect;
 
-    private JLabel infoLabel;
+    private final JLabel infoLabel;
 
     public ElevationSlider() {
-        this.onSelect = height -> setHeight(height);
+        this.onSelect = this::setHeight;
         this.infoLabel = null; // No info label by default
         setPreferredSize(new Dimension(50, 300));
         setHeight(0); // default selection at 0
@@ -120,7 +120,7 @@ public class ElevationSlider extends JPanel {
             frame.add(slider, BorderLayout.CENTER);
 
             JButton acceptButton = new JButton("Accept");
-            acceptButton.addActionListener(e -> {
+            acceptButton.addActionListener(_ -> {
                 frame.dispose();
                 onAccept.accept(selectedHeight[0]);
             });

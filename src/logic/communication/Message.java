@@ -1,7 +1,5 @@
 package logic.communication;
 
-import logic.graph_objects.Node;
-
 import java.io.Serializable;
 
 public class Message implements Serializable {

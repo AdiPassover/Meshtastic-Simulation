@@ -1,12 +1,7 @@
 package GUI;
 
-import GUI.shapesGUI.BlockGUI;
-import GUI.shapesGUI.NodeGUI;
-import GUI.shapesGUI.ShapeGUI;
-
 import javax.swing.*;
 import java.io.File;
-import java.util.List;
 
 public class PathChooser {
 

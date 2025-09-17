@@ -71,7 +71,7 @@ public class NodeGUI implements ShapeGUI, Serializable {
         g.drawOval(drawLoc.x - size, drawLoc.y - size, 2 * size, 2 * size);
 
         g.setColor(GUIConstants.NODE_TEXT_COLOR);
-        Font font = new Font(GUIConstants.NODE_FONT.getName(), GUIConstants.NODE_FONT.getStyle(), (int)(GUIConstants.NODE_FONT.getSize() * (size / (double) GUIConstants.NODE_RADIUS)));
+        Font font = new Font(GUIConstants.NODE_FONT_TYPEFACE, GUIConstants.NODE_FONT_STYLE, (int)(GUIConstants.NODE_FONT_SIZE * (size / (double) GUIConstants.NODE_RADIUS)));
         g.setFont(font);
 
         g.drawString(Integer.toString(node.id), drawLoc.x - size / 4, drawLoc.y);

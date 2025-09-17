@@ -11,8 +11,11 @@ public final class GUIConstants {
     public static final Color NODE_COLOR = Color.BLACK;
     public static final Color NODE_OUTLINE_COLOR = Color.BLACK;
     public static final Stroke NODE_OUTLINE_STROKE = new BasicStroke(2.0f);
+
     public static final Color NODE_TEXT_COLOR = Color.WHITE;
-    public static final Font NODE_FONT = new Font("Arial", Font.BOLD, 17);
+    public static final String NODE_FONT_TYPEFACE = "Arial";
+    public static final int NODE_FONT_STYLE = Font.BOLD;
+    public static final int NODE_FONT_SIZE = 17;
 
     public static final Color BLOCK_OUTLINE_COLOR = Color.BLACK;
 
