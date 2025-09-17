@@ -37,22 +37,18 @@ public class NodeGUI implements ShapeGUI, Serializable {
 
     @Override
     public boolean contains(int x, int y, ScreenTransform transform) {
-        return node.position.distance2D(transform.screenToWorld(new Point(x, y))) <= screenRadius(transform); // TODO: take zoom into account?
+        return transform.worldToScreen(node.position).distance(x, y) <= screenRadius(transform);
     }
 
-    private double screenRadius(ScreenTransform transform) {
-        return screenRadius(transform, node.x(), node.y());
-    }
-
-    private static double screenRadius(ScreenTransform transform, double x, double y) {
-        Point center = transform.worldToScreen(new Position(x, y));
-        Point edge = transform.worldToScreen(new Position(x + GUIConstants.NODE_RADIUS, y));
-        return center.distance(edge);
+    private static double screenRadius(ScreenTransform transform) {
+        return GUIConstants.NODE_RADIUS * transform.zoom();
+        // Point center = transform.worldToScreen(new Position(x, y));
+        // Point edge = transform.worldToScreen(new Position(x + GUIConstants.NODE_RADIUS, y));
+        // return center.distance(edge);
     }
 
     public static void drawPreview(Graphics2D g, int x, int y, ScreenTransform transform) {
-        Point drawLoc = transform.worldToScreen(new Position(x, y));
-        int size = (int) screenRadius(transform, drawLoc.x, drawLoc.y);
+        int size = (int) screenRadius(transform);
         g.setColor(GUIConstants.PREVIEW_COLOR);
         g.setStroke(GUIConstants.PREVIEW_STROKE);
         g.drawOval(x - size, y - size, 2 * size, 2 * size);
