@@ -42,9 +42,11 @@ public class PhysicsEngine implements Serializable {
     }
 
     public static double probMessagePassingWithLOS(double distance) {
-//        return 1.0 / Math.sqrt(1.0 + distance);
-//        return 1.0 / ((1.0 + distance)*(1.0 + distance));
-        return 1.0 / (1.0 + distance);
+        if (distance >= LogicConstants.TRANSMITTER_MAX_RANGE) return 0.0;
+        double ratio = distance / LogicConstants.TRANSMITTER_MAX_RANGE;
+        if (ratio <= LogicConstants.CLOSE_RANGE_FRAC) return 1.0;
+        double scaled = (ratio - LogicConstants.CLOSE_RANGE_FRAC) / (1.0 - LogicConstants.CLOSE_RANGE_FRAC); // normalize to [0,1] across falloff zone
+        return Math.pow(1.0 - scaled, 2);
     }
 
     public double probabilityOfSurvivingCollision(int numMessagesCollided) {

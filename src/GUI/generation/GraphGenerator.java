@@ -27,7 +27,7 @@ public class GraphGenerator {
             new Polygon(new int[]{0, 50, 0}, new int[]{0, 0, 50}, 3),                   // Right Angled Triangle
             new Polygon(new int[]{0, 50, 50, 0}, new int[]{0, 0, 50, 50}, 4),           // Square
             new Polygon(new int[]{0, 70, 70, 0}, new int[]{0, 0, 50, 50}, 4),           // Rectangle
-            new Polygon(new int[]{25, 50, 40, 10, 0}, new int[]{0, 15, 45, 45, 15}, 5), // Pentagon
+            new Polygon(new int[]{25, 50, 40, 10, 0}, new int[]{0, 15, 45, 45, 15}, 5) // Pentagon
     };
 
 

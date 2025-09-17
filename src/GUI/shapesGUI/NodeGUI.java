@@ -2,6 +2,7 @@ package GUI.shapesGUI;
 
 import GUI.GUIConstants;
 import GUI.ScreenTransform;
+import logic.LogicConstants;
 import logic.communication.transmitters.TransmitterType;
 import logic.graph_objects.Node;
 import logic.physics.Position;
@@ -13,6 +14,7 @@ public class NodeGUI implements ShapeGUI, Serializable {
 
     public final Node node;
     private Color color = GUIConstants.NODE_COLOR;
+    private boolean hovered = false;
 
     public NodeGUI(int id, Position position) {
         node = new Node(id, position);
@@ -29,6 +31,7 @@ public class NodeGUI implements ShapeGUI, Serializable {
     public Position getPosition() { return node.position; }
     public int getId() { return node.id; }
     public void setColor(Color color) { this.color = color; }
+    public void setHovered(boolean hovered) { this.hovered = hovered; }
 
     public void setTransmitter(TransmitterType type) {
         node.setTransmitterByType(type);
@@ -48,16 +51,35 @@ public class NodeGUI implements ShapeGUI, Serializable {
     }
 
     public static void drawPreview(Graphics2D g, int x, int y, ScreenTransform transform) {
+        drawRange(g, x, y, transform);
         int size = (int) screenRadius(transform);
         g.setColor(GUIConstants.PREVIEW_COLOR);
         g.setStroke(GUIConstants.PREVIEW_STROKE);
         g.drawOval(x - size, y - size, 2 * size, 2 * size);
     }
 
+    public void drawRange(Graphics2D g, ScreenTransform transform) {
+        Point drawLoc = transform.worldToScreen(node.x(), node.y());
+        drawRange(g, drawLoc.x, drawLoc.y, transform);
+    }
+    public static void drawRange(Graphics2D g, int x, int y, ScreenTransform transform) {
+        drawRange(g, x, y, LogicConstants.TRANSMITTER_MAX_RANGE, LogicConstants.TRANSMITTER_CLOSE_RANGE, transform);
+    }
+    public static void drawRange(Graphics2D g, int x, int y, double maxRange, double closeRange, ScreenTransform transform) {
+        int size = (int) (maxRange * transform.zoom());
+        g.setColor(GUIConstants.RANGE_FILL_COLOR);
+        g.setStroke(GUIConstants.RANGE_FILL_STROKE);
+        g.fillOval(x - size, y - size, 2 * size, 2 * size);
+        g.setColor(GUIConstants.CLOSE_RANGE_FILL_COLOR);
+        size = (int) (closeRange * transform.zoom());
+        g.fillOval(x - size, y - size, 2 * size, 2 * size);
+    }
+
     @Override
     public void drawShape(Graphics2D g, ScreenTransform transform) {
-        int size = (int) screenRadius(transform);   // TODO: adjust by zoom? (A: I tried it, think it's better)
-        Point drawLoc = transform.worldToScreen(new Position(node.x(), node.y()));
+        if (hovered) drawRange(g, transform);
+        int size = (int) screenRadius(transform);
+        Point drawLoc = transform.worldToScreen(node.x(), node.y());
 
         g.setColor(color);
         g.fillOval(drawLoc.x - size, drawLoc.y - size, 2 * size, 2 * size);

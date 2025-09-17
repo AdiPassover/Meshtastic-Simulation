@@ -24,9 +24,9 @@ public class EdgeGUI implements ShapeGUI {
     @Override
     public void drawShape(Graphics2D g, ScreenTransform transform) {
         g.setColor(GUIConstants.EDGE_COLOR);
-        g.setStroke(GUIConstants.EDGE_STROKE); // TODO: adjust by zoom? (A: not necessary IMO)
-        Point drawLoc1 = transform.worldToScreen(new Position(node1.node.x(), node1.node.y()));
-        Point drawLoc2 = transform.worldToScreen(new Position(node2.node.x(), node2.node.y()));
+        g.setStroke(GUIConstants.EDGE_STROKE);
+        Point drawLoc1 = transform.worldToScreen(node1.node.x(), node1.node.y());
+        Point drawLoc2 = transform.worldToScreen(node2.node.x(), node2.node.y());
 
         g.drawLine(
                 drawLoc1.x, drawLoc1.y,

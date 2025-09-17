@@ -75,7 +75,7 @@ public class Ticker {
             List<Transmission> concurrentTransmissions = entry.getValue();
 
             double prob = physics.probabilityOfSurvivingCollision(concurrentTransmissions.size());
-            stats.addCollisions(concurrentTransmissions.size()-1);
+            stats.addCollisions(concurrentTransmissions.size()-1);  // TODO: should we count collisions by number of messages collided (current) or by number of collisions (size>1)?
             for (Transmission tx : concurrentTransmissions) {
                 if (Math.random() < prob) {
                     receiver.getTransmitter().receive(tx, currentTick);

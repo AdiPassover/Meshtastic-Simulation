@@ -6,7 +6,7 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 
 public class Block implements Serializable {
-    public final Polygon polygon;   // TODO: this limits to integer coordinates, world generally uses double
+    public final Polygon polygon;   // TODO: this limits to integer coordinates, world generally uses double (A: true, idc)
     public final double height;
 
     public Block(Polygon polygon, double height) {

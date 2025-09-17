@@ -18,6 +18,7 @@ import java.awt.*;
 public class BlankMode extends Mode {
 
     private Position draggingPosition = null;
+    private NodeGUI hoveredNode = null;
 
     public BlankMode(MainSimulationWindow mainWindow) { super(mainWindow); }
 
@@ -28,7 +29,7 @@ public class BlankMode extends Mode {
     @Override
     public void mouseDrag(int x, int y) {
         if (draggingPosition == null)  // start dragging
-            draggingPosition = mainWindow.getTransform().screenToWorld(new Point(x, y));
+            draggingPosition = mainWindow.getTransform().screenToWorld(x, y);
         mainWindow.setTransform(ScreenTransform.createFromRequirement(draggingPosition, new Point(x, y), mainWindow.getTransform().zoom()));
         mainWindow.getDrawingPanel().repaint();
     }
@@ -43,6 +44,22 @@ public class BlankMode extends Mode {
           }
         }
 
+    }
+
+    @Override
+    public void mouseHover(int x, int y) {
+        ShapeGUI shape = mainWindow.getShapeAt(x, y);
+        if (shape instanceof NodeGUI n) {
+            if (hoveredNode != null) hoveredNode.setHovered(false);
+            hoveredNode = n;
+            hoveredNode.setHovered(true);
+        } else if (hoveredNode != null) {
+            hoveredNode.setHovered(false);
+            hoveredNode = null;
+        } else {
+            return;
+        }
+        mainWindow.getDrawingPanel().repaint();
     }
 
     @Override

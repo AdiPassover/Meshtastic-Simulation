@@ -21,9 +21,7 @@ import logic.physics.Position;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -67,6 +65,7 @@ public class MainSimulationWindow {
         drawingPanel.addMouseListener(new MouseAdapter() {
             @Override public void mouseReleased(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
+                    drawingPanel.requestFocusInWindow();
                     currentMode.mouseClick(e.getX(), e.getY());
                 } else if (e.getButton() == MouseEvent.BUTTON3) {
                     currentMode.mouseRightClick(e.getX(), e.getY());
@@ -81,8 +80,20 @@ public class MainSimulationWindow {
                 currentMode.mouseDrag(e.getX(), e.getY());
             }
         });
-
+        drawingPanel.addKeyListener(new KeyListener() {
+            @Override public void keyTyped(KeyEvent e) {}
+            @Override public void keyReleased(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) { // Deselect current mode on ESC
+                    setCurrentMode(modes.BLANK);
+                    highlightButton(null);
+                }
+            }
+        });
         drawingPanel.addMouseWheelListener(e -> currentMode.mouseWheelRotate(e.getWheelRotation(), e.getLocationOnScreen().x, e.getLocationOnScreen().y));
+
+        drawingPanel.setFocusable(true);
 
         controlPanel = new JPanel(new GridBagLayout());
 
@@ -301,7 +312,7 @@ public class MainSimulationWindow {
     public JFrame getFrame() { return frame; }
 
     public double getHeightAt(int x, int y) {
-        Position pos = getTransform().screenToWorld(new Point(x, y));
+        Position pos = getTransform().screenToWorld(x, y);
         return physics.getHeightAt(pos.x, pos.y);
     }
 
@@ -505,7 +516,8 @@ public class MainSimulationWindow {
 
         Map<Message, Node> messagesReceived = ticker.getMessagesReceivedThisTick();
         receivedPanel.removeAll();
-        receivedPanel.setLayout(new GridLayout(messagesReceived.size(), 1, 5, 5)); // 6 rows, spacing between items
+        receivedPanel.setLayout(new GridLayout(Math.min(messagesReceived.size(), GUIConstants.MAX_RCVED_MESSAGES_DISPLAYED),
+                           1, 5, 5)); // 6 rows, spacing between items
         receivedPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.BLACK, 2),
                 "Received Messages",
@@ -520,6 +532,7 @@ public class MainSimulationWindow {
             noMessagesLabel.setHorizontalAlignment(SwingConstants.CENTER);
             receivedPanel.add(noMessagesLabel);
         } else {
+            int count = 0;
             for (Map.Entry<Message, Node> entry : messagesReceived.entrySet()) {
                 Message msg = entry.getKey();
                 Node sourceNode = entry.getValue();
@@ -527,13 +540,16 @@ public class MainSimulationWindow {
                         " from " + msg.sourceId);
                 messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
                 receivedPanel.add(messageLabel);
+                if (++count >= GUIConstants.MAX_RCVED_MESSAGES_DISPLAYED) break;
             }
         }
     }
 
     private void highlightButton(JButton button) {
-        button.setBackground(GUIConstants.CHOSEN_BUTTON_COLOR); // Light blue background
-        button.setForeground(Color.BLACK);
+        if (button != null) {
+            button.setBackground(GUIConstants.CHOSEN_BUTTON_COLOR); // Light blue background
+            button.setForeground(Color.BLACK);
+        }
 
         for (Component comp : controlPanel.getComponents()) {
             if (comp instanceof JButton otherButton && comp != button) {
