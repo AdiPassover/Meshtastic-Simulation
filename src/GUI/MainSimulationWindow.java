@@ -34,7 +34,7 @@ public class MainSimulationWindow {
     private final JLabel[] transformLabels = { createTransformLabel("X: 0"), createTransformLabel("Y: 0"), createTransformLabel("Zoom: 1.0x") };
     private final JButton startButton,addNodeButton, addBlockButton, saveButton, loadButton, nextButton, playButton,
             pauseButton, skipButton, generateButton;
-    private JPanel statsPanel = new JPanel();
+    private final JPanel statsPanel = new JPanel();
     private final JPanel receivedPanel = new JPanel();
 
     private final ModeFactory modes = new ModeFactory(this);
@@ -205,8 +205,7 @@ public class MainSimulationWindow {
     private void playButton() {
         if (!isPlaying) {
             isPlaying = true;
-            int delayInMillis = (int)(currentDelay * 1000); // Set the current delay in milliseconds
-            playTimer.setDelay(delayInMillis);
+            setTimerDelay();
             playTimer.setInitialDelay(0);
             playTimer.start();
         }
@@ -222,6 +221,10 @@ public class MainSimulationWindow {
         updateStats();
     }
 
+    private void setTimerDelay() {
+        int delayInMillis = (int)(currentDelay * 1000); // Set the current delay in milliseconds
+        playTimer.setDelay(delayInMillis);
+    }
 
     public void addNode(NodeGUI node) {
         for (NodeGUI n : nodes)
@@ -434,6 +437,9 @@ public class MainSimulationWindow {
         speedSlider.addChangeListener(_ -> {
             int sliderValue = speedSlider.getValue();
             currentDelay = realMin + (realMax - realMin) * (sliderValue - sliderMin) / (sliderMax - sliderMin);
+            if (isPlaying) {
+                setTimerDelay();
+            }
         });
         speedSlider.setMajorTickSpacing(5);
         speedSlider.setPaintTicks(true);

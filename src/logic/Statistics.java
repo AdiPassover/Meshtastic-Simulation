@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class Statistics {
 
-    private int graphsSize;
+    private final int graphSize;
 
     private int totalTransmissions;
     private final Set<Integer> originalMessagesHashes;
@@ -17,7 +17,7 @@ public class Statistics {
     private final Map<Integer, Set<Integer>> broadcastMessages; // Maps message hash to number of ids who received it
 
     public Statistics(int size) {
-        this.graphsSize = size;
+        this.graphSize = size;
 
         this.totalTransmissions = 0;
         this.originalMessagesHashes = new HashSet<>();
@@ -55,12 +55,12 @@ public class Statistics {
     }
 
     public void printStats() {
-        System.out.println("Total transmissions: " + totalTransmissions);
-        System.out.println("Original messages: " + originalMessagesHashes.size());
-        System.out.println("Successful messages: " + successfulMessageHashes.size());
+        System.out.println("Total transmissions: " + getTotalTransmissions());
+        System.out.println("Original messages: " + getOriginalMessages());
+        System.out.println("Successful messages: " + getSuccessfulMessages());
         // System.out.println("Message success rate: " + successfulMessages / originalMessages);
-        System.out.println("Average latency: " + (double) latenciesTotal / successfulMessageHashes.size());
-        System.out.println("Number of collisions: " + numCollisions);
+        System.out.println("Average latency: " + getAverageLatency());
+        System.out.println("Number of collisions: " + getNumCollisions());
     }
 
     public void addBroadcastMessage(int msgHash) {
@@ -77,7 +77,7 @@ public class Statistics {
             broadcastMessages.put(msgHash, nodes);
         }
 
-        if (nodes.size() == graphsSize-1)
+        if (nodes.size() == graphSize - 1)
             addSuccessfulMessage(msgHash, latency);
     }
 }

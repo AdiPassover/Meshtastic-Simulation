@@ -44,7 +44,7 @@ public class FloodingTransmitter extends Transmitter {
         if (msg.ttl <= 0) return; // Ignore expired messages
 
         // Forward the message to all neighbors
-        for (int t = currentTick+1; true; t++) {
+        for (int t = currentTick + 1; true; t++) {
             if (!scheduledMessages.containsKey(t)) {
                 scheduledMessages.put(t, msg.forward());
                 break;
