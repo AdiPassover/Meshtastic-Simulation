@@ -218,8 +218,8 @@ public class MainSimulationWindow {
     private void tick(boolean updateGUI) {
         if (tickers == null) {
             List<Block> logicBlocks = blocks.stream().map(BlockGUI::getBlock).toList();
-            int batchCount = ((SpinnerNumberModel) batchSizeField.getModel()).getNumber().intValue();
-            tickers = new TickerBatch(batchCount, getGraph(), logicBlocks);
+            int batchSize = ((SpinnerNumberModel) batchSizeField.getModel()).getNumber().intValue();
+            tickers = new TickerBatch(batchSize, getGraph(), logicBlocks);
         }
         tickers.tick();
         if (updateGUI) updateStats();
@@ -406,7 +406,7 @@ public class MainSimulationWindow {
         gbc.gridy = 0;
 
         gbc.gridwidth = 1;
-        JLabel batchSizeLabel = new JLabel("Number of batches:");
+        JLabel batchSizeLabel = new JLabel("Batch size:");
         gbc.gridx = 0;
         controlPanel.add(batchSizeLabel, gbc);
 
