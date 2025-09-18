@@ -36,6 +36,7 @@ public class MainSimulationWindow {
             pauseButton, skipButton, generateButton;
     private final JPanel statsPanel = new JPanel();
     private final JPanel receivedPanel = new JPanel();
+    private final JSpinner batchSizeField = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
 
     private final ModeFactory modes = new ModeFactory(this);
     private Mode currentMode = modes.BLANK;
@@ -165,15 +166,11 @@ public class MainSimulationWindow {
         if (isBuilding) {
             startButton.setText("Start");
             layoutBuildComponents();
+            playTimer.stop();
             tickers = null;
         } else {
             startButton.setText("Stop");
             layoutSimulationComponents();
-
-            List<Block> logicBlocks = new ArrayList<>();
-            for (BlockGUI block : blocks) logicBlocks.add(block.block);
-            // TODO: select count in GUI and put here
-            tickers = new TickerBatch(5, getGraph(), logicBlocks);
         }
 
         controlPanel.revalidate();
@@ -219,6 +216,11 @@ public class MainSimulationWindow {
         }
     }
     private void tick(boolean updateGUI) {
+        if (tickers == null) {
+            List<Block> logicBlocks = blocks.stream().map(BlockGUI::getBlock).toList();
+            int batchCount = ((SpinnerNumberModel) batchSizeField.getModel()).getNumber().intValue();
+            tickers = new TickerBatch(batchCount, getGraph(), logicBlocks);
+        }
         tickers.tick();
         if (updateGUI) updateStats();
     }
@@ -401,8 +403,18 @@ public class MainSimulationWindow {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.anchor = GridBagConstraints.WEST;
-        gbc.gridx = 0;
         gbc.gridy = 0;
+
+        gbc.gridwidth = 1;
+        JLabel batchSizeLabel = new JLabel("Number of batches:");
+        gbc.gridx = 0;
+        controlPanel.add(batchSizeLabel, gbc);
+
+        gbc.gridx = 1;
+        controlPanel.add(batchSizeField, gbc);
+
+        gbc.gridy++;
+        gbc.gridx = 0;
         gbc.gridwidth = 2;
         controlPanel.add(startButton, gbc);
 
@@ -413,8 +425,8 @@ public class MainSimulationWindow {
         gbc.gridx = 1;
         controlPanel.add(skipButton, gbc);
 
-        gbc.gridx = 0;
         gbc.gridy++;
+        gbc.gridx = 0;
         controlPanel.add(playButton, gbc);
 
         gbc.gridx = 1;
@@ -501,6 +513,7 @@ public class MainSimulationWindow {
                 Color.BLACK
         ));
         receivedPanel.setBackground(new Color(230, 230, 230)); // Light gray
+        receivedPanel.removeAll();
 
         controlPanel.add(receivedPanel, gbc);
 

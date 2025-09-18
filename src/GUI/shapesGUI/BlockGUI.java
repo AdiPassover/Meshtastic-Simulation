@@ -29,6 +29,10 @@ public class BlockGUI implements ShapeGUI, Serializable {
         return block.contains(transform.screenToWorld(x, y));
     }
 
+    public Block getBlock() {
+        return block;
+    }
+
     @Override
     public void drawShape(Graphics2D g, ScreenTransform transform) {
         Polygon drawPolygon = new Polygon();
