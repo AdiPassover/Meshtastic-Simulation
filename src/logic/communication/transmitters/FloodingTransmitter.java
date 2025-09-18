@@ -38,7 +38,7 @@ public class FloodingTransmitter extends Transmitter {
         if (msg.destinationId == owner.id || (msg.destinationId == -1 && msg.sourceId != owner.id))
         {
             // If the message is for this node, stop forwarding
-            System.out.println("On tick " + currentTick + " transmitter " + owner.id + " received: " + msg + " from " + tx.source.id);
+            // System.out.println("On tick " + currentTick + " transmitter " + owner.id + " received: " + msg + " from " + tx.source.id);
             if (msg.destinationId != -1) return;
         }
         if (msg.ttl <= 0) return; // Ignore expired messages
