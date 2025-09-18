@@ -34,7 +34,8 @@ public class MainSimulationWindow {
     private final JLabel[] transformLabels = { createTransformLabel("X: 0"), createTransformLabel("Y: 0"), createTransformLabel("Zoom: 1.0x") };
     private final JButton startButton,addNodeButton, addBlockButton, saveButton, loadButton, nextButton, playButton,
             pauseButton, skipButton, generateButton;
-    private final JPanel statsPanel = new JPanel(), receivedPanel = new JPanel();
+    private JPanel statsPanel = new JPanel();
+    private final JPanel receivedPanel = new JPanel();
 
     private final ModeFactory modes = new ModeFactory(this);
     private Mode currentMode = modes.BLANK;
@@ -387,6 +388,8 @@ public class MainSimulationWindow {
         gbc.insets = new Insets(2, 10, 5, 10);
         controlPanel.add(new ElevationLegend(new Dimension(100, 220)), gbc);
 
+        statsPanel.removeAll();
+
         frame.add(controlPanel, BorderLayout.EAST);
     }
     private void layoutSimulationComponents() {
@@ -427,6 +430,7 @@ public class MainSimulationWindow {
         double realMax = 2.0;
 
         JSlider speedSlider = new JSlider(sliderMin, sliderMax, 10); // initial value = 1.0
+        currentDelay = 1.0;
         speedSlider.addChangeListener(_ -> {
             int sliderValue = speedSlider.getValue();
             currentDelay = realMin + (realMax - realMin) * (sliderValue - sliderMin) / (sliderMax - sliderMin);

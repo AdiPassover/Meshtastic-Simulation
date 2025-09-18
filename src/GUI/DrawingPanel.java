@@ -22,11 +22,11 @@ public class DrawingPanel extends JPanel {
       this.mainWindow = mainWindow;
       Image image;
       try {
-          image = ImageIO.read(Constants.BACKGROUND_IMAGE_FILE);
-          System.out.println("Loaded image from " + Constants.BACKGROUND_IMAGE_FILE.getCanonicalPath());
+          image = ImageIO.read(GUIConstants.BACKGROUND_IMAGE_FILE);
+          System.out.println("Loaded image from " + GUIConstants.BACKGROUND_IMAGE_FILE.getCanonicalPath());
       } catch (IOException e) {
           try {
-              System.err.println("Error opening background image (from " + Constants.BACKGROUND_IMAGE_FILE.getCanonicalPath() + "), defaulting to solid color.");
+              System.err.println("Error opening background image (from " + GUIConstants.BACKGROUND_IMAGE_FILE.getCanonicalPath() + "), defaulting to solid color.");
           } catch (IOException _) {}
           image = null;
       }
