@@ -170,6 +170,7 @@ public class MainSimulationWindow {
             tickers = null;
         } else {
             startButton.setText("Stop");
+            batchSizeField.setEnabled(true);
             layoutSimulationComponents();
         }
 
@@ -218,8 +219,8 @@ public class MainSimulationWindow {
     private void tick(boolean updateGUI) {
         if (tickers == null) {
             List<Block> logicBlocks = blocks.stream().map(BlockGUI::getBlock).toList();
-            int batchSize = ((SpinnerNumberModel) batchSizeField.getModel()).getNumber().intValue();
-            tickers = new TickerBatch(batchSize, getGraph(), logicBlocks);
+            batchSizeField.setEnabled(false);
+            tickers = new TickerBatch((int) batchSizeField.getValue(), getGraph(), logicBlocks);
         }
         tickers.tick();
         if (updateGUI) updateStats();
