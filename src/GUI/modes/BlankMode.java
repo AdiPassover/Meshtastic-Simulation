@@ -1,6 +1,6 @@
 package GUI.modes;
 
-import GUI.Constants;
+import GUI.GUIConstants;
 import GUI.MainSimulationWindow;
 import GUI.PathChooser;
 import GUI.ScreenTransform;
@@ -18,19 +18,18 @@ import java.awt.*;
 public class BlankMode extends Mode {
 
     private Position draggingPosition = null;
+    private NodeGUI hoveredNode = null;
 
     public BlankMode(MainSimulationWindow mainWindow) { super(mainWindow); }
 
     @Override public void mouseClick(int x, int y) {
-        if (draggingPosition != null) {
-            draggingPosition = null;
-            return;
-        }
-        draggingPosition = mainWindow.getTransform().screenToWorld(new Point(x, y));
+        draggingPosition = null;  // stop dragging
     }
-    @Override public void mouseHover(int x, int y) {
-        if (draggingPosition == null) return;
-        // create new ScreenTransform st such that st.screenToWorld(x, y) == draggingPosition
+
+    @Override
+    public void mouseDrag(int x, int y) {
+        if (draggingPosition == null)  // start dragging
+            draggingPosition = mainWindow.getTransform().screenToWorld(x, y);
         mainWindow.setTransform(ScreenTransform.createFromRequirement(draggingPosition, new Point(x, y), mainWindow.getTransform().zoom()));
         mainWindow.getDrawingPanel().repaint();
     }
@@ -38,18 +37,35 @@ public class BlankMode extends Mode {
     @Override
     public void mouseRightClick(int x, int y) {
         ShapeGUI shape = mainWindow.getShapeAt(x, y);
-      switch (shape) {
-        case BlockGUI b -> showBlockPopup(b, x, y);
-        case NodeGUI n -> showNodePopup(n, x, y);
-        case null, default -> {
+        switch (shape) {
+          case BlockGUI b -> showBlockPopup(b, x, y);
+          case NodeGUI n -> showNodePopup(n, x, y);
+          case null, default -> {
+          }
         }
-      }
+
+    }
+
+    @Override
+    public void mouseHover(int x, int y) {
+        ShapeGUI shape = mainWindow.getShapeAt(x, y);
+        if (shape instanceof NodeGUI n) {
+            if (hoveredNode != null) hoveredNode.setHovered(false);
+            hoveredNode = n;
+            hoveredNode.setHovered(true);
+        } else if (hoveredNode != null) {
+            hoveredNode.setHovered(false);
+            hoveredNode = null;
+        } else {
+            return;
+        }
+        mainWindow.getDrawingPanel().repaint();
     }
 
     @Override
     public void mouseWheelRotate(int clicks, int x, int y) {
         if (draggingPosition != null) return;   // do not allow zoom while dragging, it's a mess
-        double zoom = mainWindow.getTransform().zoom() * Math.pow(Constants.ZOOM_PER_WHEEL_CLICK, -clicks);
+        double zoom = mainWindow.getTransform().zoom() * Math.pow(GUIConstants.ZOOM_PER_WHEEL_CLICK, -clicks);
         Point mouseScreenLocation = new Point(x, y);
         Position mouseWorldPosition = mainWindow.getTransform().screenToWorld(mouseScreenLocation);
         mainWindow.setTransform(ScreenTransform.createFromRequirement(mouseWorldPosition, mouseScreenLocation, zoom));
@@ -91,7 +107,7 @@ public class BlankMode extends Mode {
                         "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            String path = PathChooser.choosePath(Constants.SCHEDULES_DIRECTORY);
+            String path = PathChooser.choosePath(GUIConstants.SCHEDULES_DIRECTORY);
             if (path == null) return;
             transmitter.clearSchedule();
             Scheduler.scheduleFromFile(transmitter, path);

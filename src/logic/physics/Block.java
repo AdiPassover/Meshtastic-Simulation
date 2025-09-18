@@ -6,7 +6,7 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 
 public class Block implements Serializable {
-    public final Polygon polygon;   // TODO: this limits to integer coordinates, world generally uses double
+    public final Polygon polygon;   // TODO: this limits to integer coordinates, world generally uses double (A: true, idc)
     public final double height;
 
     public Block(Polygon polygon, double height) {
@@ -50,17 +50,14 @@ public class Block implements Serializable {
         }
 
         // Also check if the segment starts or ends inside the polygon
-        if (polygon.contains(x1, y1) && z1 <= height) return true;
-        if (polygon.contains(x2, y2) && z2 <= height) return true;
-
-        return false;
+        return polygon.contains(x1, y1) && z1 <= height || polygon.contains(x2, y2) && z2 <= height;
     }
 
     private Point2D.Double getLineIntersection(
             double x1, double y1, double x2, double y2,
             double x3, double y3, double x4, double y4
     ) {
-        double denom = (y4 - y3)*(x2 - x1) - (x4 - x3)*(y2 - y1);
+        double denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
         if (denom == 0) return null; // parallel
 
         double ua = ((x4 - x3)*(y1 - y3) - (y4 - y3)*(x1 - x3)) / denom;

@@ -9,11 +9,9 @@ import java.util.Set;
 
 public class DeadTransmitter extends Transmitter {
 
-    private Set<Message> allMessages = new HashSet<>();
+    private final Set<Message> allMessages = new HashSet<>();
 
-    public DeadTransmitter(Node owner) {
-        super(owner); // No owner, as this transmitter does not function
-    }
+    public DeadTransmitter(Node owner) { super(owner); }
 
 
     @Override

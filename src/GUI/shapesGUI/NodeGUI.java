@@ -1,7 +1,8 @@
 package GUI.shapesGUI;
 
-import GUI.Constants;
+import GUI.GUIConstants;
 import GUI.ScreenTransform;
+import logic.LogicConstants;
 import logic.communication.transmitters.TransmitterType;
 import logic.graph_objects.Node;
 import logic.physics.Position;
@@ -12,43 +13,84 @@ import java.io.Serializable;
 public class NodeGUI implements ShapeGUI, Serializable {
 
     public final Node node;
-    private Color color = Constants.NODE_COLOR;
+    private Color color = GUIConstants.NODE_COLOR;
+    private boolean hovered = false;
 
     public NodeGUI(int id, Position position) {
         node = new Node(id, position);
-        setTransmitter(Constants.DEFAULT_TRANSMITTER_TYPE);
+        setTransmitter(GUIConstants.DEFAULT_TRANSMITTER_TYPE);
+    }
+    public NodeGUI(Node node) {
+        this.node = node;
+        if (node.getTransmitterType() != null)
+            setColor(node.getTransmitterType().getColor());
+        else
+            setTransmitter(GUIConstants.DEFAULT_TRANSMITTER_TYPE);
     }
 
     public Position getPosition() { return node.position; }
     public int getId() { return node.id; }
     public void setColor(Color color) { this.color = color; }
+    public void setHovered(boolean hovered) { this.hovered = hovered; }
 
     public void setTransmitter(TransmitterType type) {
-        node.setTransmitter(type.create(node));
+        node.setTransmitterByType(type);
         setColor(type.getColor());
     }
 
     @Override
     public boolean contains(int x, int y, ScreenTransform transform) {
-        // TODO: take zoom into account? related to drawing size
-        return node.position.distance2D(transform.screenToWorld(new Point(x, y))) <= Constants.NODE_RADIUS;
+        return transform.worldToScreen(node.position).distance(x, y) <= screenRadius(transform);
     }
 
+    private static double screenRadius(ScreenTransform transform) {
+        return GUIConstants.NODE_RADIUS * transform.zoom();
+        // Point center = transform.worldToScreen(new Position(x, y));
+        // Point edge = transform.worldToScreen(new Position(x + GUIConstants.NODE_RADIUS, y));
+        // return center.distance(edge);
+    }
+
+    public static void drawPreview(Graphics2D g, int x, int y, ScreenTransform transform) {
+        drawRange(g, x, y, transform);
+        int size = (int) screenRadius(transform);
+        g.setColor(GUIConstants.PREVIEW_COLOR);
+        g.setStroke(GUIConstants.PREVIEW_STROKE);
+        g.drawOval(x - size, y - size, 2 * size, 2 * size);
+    }
+
+    public void drawRange(Graphics2D g, ScreenTransform transform) {
+        Point drawLoc = transform.worldToScreen(node.x(), node.y());
+        drawRange(g, drawLoc.x, drawLoc.y, transform);
+    }
+    public static void drawRange(Graphics2D g, int x, int y, ScreenTransform transform) {
+        drawRange(g, x, y, LogicConstants.TRANSMITTER_MAX_RANGE, LogicConstants.TRANSMITTER_CLOSE_RANGE, transform);
+    }
+    public static void drawRange(Graphics2D g, int x, int y, double maxRange, double closeRange, ScreenTransform transform) {
+        int size = (int) (maxRange * transform.zoom());
+        g.setColor(GUIConstants.RANGE_FILL_COLOR);
+        g.setStroke(GUIConstants.RANGE_FILL_STROKE);
+        g.fillOval(x - size, y - size, 2 * size, 2 * size);
+        g.setColor(GUIConstants.CLOSE_RANGE_FILL_COLOR);
+        size = (int) (closeRange * transform.zoom());
+        g.fillOval(x - size, y - size, 2 * size, 2 * size);
+    }
 
     @Override
     public void drawShape(Graphics2D g, ScreenTransform transform) {
-        int size = Constants.NODE_RADIUS;   // TODO: adjust by zoom?
-        Point drawLoc = transform.worldToScreen(new Position(node.x(), node.y()));
+        if (hovered) drawRange(g, transform);
+        int size = (int) screenRadius(transform);
+        Point drawLoc = transform.worldToScreen(node.x(), node.y());
 
         g.setColor(color);
         g.fillOval(drawLoc.x - size, drawLoc.y - size, 2 * size, 2 * size);
 
-        g.setColor(Constants.NODE_OUTLINE_COLOR);
-        g.setStroke(Constants.NODE_OUTLINE_STROKE);
+        g.setColor(GUIConstants.NODE_OUTLINE_COLOR);
+        g.setStroke(GUIConstants.NODE_OUTLINE_STROKE);
         g.drawOval(drawLoc.x - size, drawLoc.y - size, 2 * size, 2 * size);
 
-        g.setColor(Constants.NODE_TEXT_COLOR);
-        g.setFont(Constants.NODE_FONT);
+        g.setColor(GUIConstants.NODE_TEXT_COLOR);
+        Font font = new Font(GUIConstants.NODE_FONT_TYPEFACE, GUIConstants.NODE_FONT_STYLE, (int)(GUIConstants.NODE_FONT_SIZE * (size / (double) GUIConstants.NODE_RADIUS)));
+        g.setFont(font);
 
         g.drawString(Integer.toString(node.id), drawLoc.x - size / 4, drawLoc.y);
     }

@@ -1,6 +1,6 @@
 package GUI.elevation;
 
-import GUI.Constants;
+import GUI.GUIConstants;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,10 +13,10 @@ public class ElevationSlider extends JPanel {
     private double selectedHeight;
     private final Consumer<Double> onSelect;
 
-    private JLabel infoLabel;
+    private final JLabel infoLabel;
 
     public ElevationSlider() {
-        this.onSelect = height -> setHeight(height);
+        this.onSelect = this::setHeight;
         this.infoLabel = null; // No info label by default
         setPreferredSize(new Dimension(50, 300));
         setHeight(0); // default selection at 0
@@ -66,19 +66,19 @@ public class ElevationSlider extends JPanel {
 
 
     public static Color getElevationColor(double height) {
-        height = Math.max(Constants.MINIMUM_HEIGHT, Math.min(Constants.MAXIMUM_HEIGHT, height));
+        height = Math.max(GUIConstants.MINIMUM_HEIGHT, Math.min(GUIConstants.MAXIMUM_HEIGHT, height));
 
-        if (height < Constants.BLUE_HEIGHT) {
-            double ratio = normalize(height, Constants.MINIMUM_HEIGHT, Constants.BLUE_HEIGHT);
+        if (height < GUIConstants.BLUE_HEIGHT) {
+            double ratio = normalize(height, GUIConstants.MINIMUM_HEIGHT, GUIConstants.BLUE_HEIGHT);
             return new Color(0, (int) (255 * ratio), 255);
-        } else if (height < Constants.GREEN_HEIGHT) {
-            double ratio = normalize(height, Constants.BLUE_HEIGHT, Constants.GREEN_HEIGHT);
+        } else if (height < GUIConstants.GREEN_HEIGHT) {
+            double ratio = normalize(height, GUIConstants.BLUE_HEIGHT, GUIConstants.GREEN_HEIGHT);
             return new Color(0, 255, (int) (255 * (1 - ratio)));
-        } else if (height < Constants.YELLOW_HEIGHT) {
-            double ratio = normalize(height, Constants.GREEN_HEIGHT, Constants.YELLOW_HEIGHT);
+        } else if (height < GUIConstants.YELLOW_HEIGHT) {
+            double ratio = normalize(height, GUIConstants.GREEN_HEIGHT, GUIConstants.YELLOW_HEIGHT);
             return new Color((int) (255 * ratio), 255, 0);
         } else {
-            double ratio = normalize(height, Constants.YELLOW_HEIGHT, Constants.MAXIMUM_HEIGHT);
+            double ratio = normalize(height, GUIConstants.YELLOW_HEIGHT, GUIConstants.MAXIMUM_HEIGHT);
             return new Color(255, (int) (255 * (1 - ratio)), 0);
         }
     }
@@ -120,7 +120,7 @@ public class ElevationSlider extends JPanel {
             frame.add(slider, BorderLayout.CENTER);
 
             JButton acceptButton = new JButton("Accept");
-            acceptButton.addActionListener(e -> {
+            acceptButton.addActionListener(_ -> {
                 frame.dispose();
                 onAccept.accept(selectedHeight[0]);
             });

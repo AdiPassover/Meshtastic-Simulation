@@ -5,29 +5,37 @@ import logic.communication.transmitters.TransmitterType;
 import java.awt.*;
 import java.io.File;
 
-public final class Constants {
+public final class GUIConstants {
 
-    public static final int NODE_RADIUS = 25;
+    public static final int NODE_RADIUS = 20;
     public static final Color NODE_COLOR = Color.BLACK;
     public static final Color NODE_OUTLINE_COLOR = Color.BLACK;
     public static final Stroke NODE_OUTLINE_STROKE = new BasicStroke(2.0f);
+
     public static final Color NODE_TEXT_COLOR = Color.WHITE;
-    public static final Font NODE_FONT = new Font("Arial", Font.BOLD, 17);
+    public static final String NODE_FONT_TYPEFACE = "Arial";
+    public static final int NODE_FONT_STYLE = Font.BOLD;
+    public static final int NODE_FONT_SIZE = 16;
+
+    public static final Stroke RANGE_FILL_STROKE = new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{2f, 2f}, 0.0f);
+    public static final Color RANGE_FILL_COLOR = new Color(135, 206, 250, 64);
+    public static final Color CLOSE_RANGE_FILL_COLOR = new Color(135, 206, 250, 128);
 
     public static final Color BLOCK_OUTLINE_COLOR = Color.BLACK;
 
     public static final Color EDGE_COLOR = Color.BLACK;
     public static final Stroke EDGE_STROKE = new BasicStroke(2.0f);
 
-    public static final Color PREVIEW_COLOR = new Color(102, 197, 225, 242);
+    public static final Color PREVIEW_COLOR = new Color(102, 178, 225, 242);
     public static final Stroke PREVIEW_STROKE = new BasicStroke(5, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{10f, 10f, 10f, 10f}, 0.0f);
 
+    public static final int MAX_RCVED_MESSAGES_DISPLAYED = 10;
 
     // Height constants for the slider
     public static final int MINIMUM_HEIGHT = -100;
-    public static final int BLUE_HEIGHT = -30;
+    public static final int BLUE_HEIGHT = -35;
     public static final int GREEN_HEIGHT = -10;
-    public static final int YELLOW_HEIGHT = 60;
+    public static final int YELLOW_HEIGHT = 35;
     public static final int MAXIMUM_HEIGHT = 100;
 
     public static final TransmitterType DEFAULT_TRANSMITTER_TYPE = TransmitterType.FLOODING;

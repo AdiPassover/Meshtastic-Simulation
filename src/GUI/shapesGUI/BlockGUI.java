@@ -1,6 +1,6 @@
 package GUI.shapesGUI;
 
-import GUI.Constants;
+import GUI.GUIConstants;
 import GUI.ScreenTransform;
 import GUI.elevation.ElevationSlider;
 import logic.physics.Block;
@@ -18,6 +18,7 @@ public class BlockGUI implements ShapeGUI, Serializable {
         this.block = new Block(polygon, height);
         this.color = ElevationSlider.getElevationColor(height);
     }
+    public BlockGUI(Block block) { this(block.polygon, block.height); }
 
     public double getHeight() {
         return block.height;
@@ -25,7 +26,7 @@ public class BlockGUI implements ShapeGUI, Serializable {
 
     @Override
     public boolean contains(int x, int y, ScreenTransform transform) {
-        return block.contains(transform.screenToWorld(new Point(x, y)));
+        return block.contains(transform.screenToWorld(x, y));
     }
 
     @Override
@@ -41,7 +42,7 @@ public class BlockGUI implements ShapeGUI, Serializable {
         g.setColor(color);
         g.fill(drawPolygon);
 
-        g.setColor(Constants.BLOCK_OUTLINE_COLOR);
+        g.setColor(GUIConstants.BLOCK_OUTLINE_COLOR);
         g.draw(drawPolygon);
     }
 

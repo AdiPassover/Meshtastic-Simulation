@@ -11,11 +11,18 @@ public record ScreenTransform(double x, double y, double zoom) {
 
   public Position screenToWorld(Point p) {
     if (p == null) return null;
-    return new Position(p.x / zoom + x, p.y / zoom + y);
+    return screenToWorld(p.x, p.y);
+  }
+  public Position screenToWorld(int x, int y) {
+    return new Position(x / zoom + this.x, y / zoom + this.y);
   }
 
   public Point worldToScreen(Position p) {
     if (p == null) return null;
-    return new Point((int) (zoom * (p.x - x)), (int) (zoom * (p.y - y))); // TODO: maybe round to nearest, don't think it should matter
+    return worldToScreen(p.x, p.y);
   }
+  public Point worldToScreen(double x, double y) {
+    return new Point((int) (zoom * Math.round(x - this.x)), (int) Math.round(zoom * (y - this.y)));
+  }
+
 }

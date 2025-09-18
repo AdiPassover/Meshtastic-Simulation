@@ -1,5 +1,6 @@
 package GUI;
 
+import GUI.generation.GenerationWindow;
 import GUI.elevation.ElevationLegend;
 import GUI.modes.Mode;
 import GUI.modes.ModeFactory;
@@ -20,9 +21,7 @@ import logic.physics.Position;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -31,9 +30,10 @@ public class MainSimulationWindow {
 
     private final JFrame frame;
     private final DrawingPanel drawingPanel;
-    private final JPanel controlPanel;
+    private final JPanel controlPanel, transformPanel;
+    private final JLabel[] transformLabels = { createTransformLabel("X: 0"), createTransformLabel("Y: 0"), createTransformLabel("Zoom: 1.0x") };
     private final JButton startButton,addNodeButton, addBlockButton, saveButton, loadButton, nextButton, playButton,
-            pauseButton, skipButton;
+            pauseButton, skipButton, generateButton;
     private final JPanel statsPanel = new JPanel(), receivedPanel = new JPanel();
 
     private final ModeFactory modes = new ModeFactory(this);
@@ -65,6 +65,7 @@ public class MainSimulationWindow {
         drawingPanel.addMouseListener(new MouseAdapter() {
             @Override public void mouseReleased(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
+                    drawingPanel.requestFocusInWindow();
                     currentMode.mouseClick(e.getX(), e.getY());
                 } else if (e.getButton() == MouseEvent.BUTTON3) {
                     currentMode.mouseRightClick(e.getX(), e.getY());
@@ -75,30 +76,64 @@ public class MainSimulationWindow {
             @Override public void mouseMoved(MouseEvent e) {
                 currentMode.mouseHover(e.getX(), e.getY());
             }
-            // TODO: make dragging use mouseDragged?
+            @Override public void mouseDragged(MouseEvent e) {
+                currentMode.mouseDrag(e.getX(), e.getY());
+            }
         });
+        drawingPanel.addKeyListener(new KeyListener() {
+            @Override public void keyTyped(KeyEvent e) {}
+            @Override public void keyReleased(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) { // Deselect current mode on ESC
+                    setCurrentMode(modes.BLANK);
+                    highlightButton(null);
+                }
+            }
+        });
+        drawingPanel.addMouseWheelListener(e -> currentMode.mouseWheelRotate(e.getWheelRotation(), e.getLocationOnScreen().x, e.getLocationOnScreen().y));
 
-        drawingPanel.addMouseWheelListener(e -> currentMode.mouseWheelRotate(e.getWheelRotation(), e.getLocationOnScreen().x, e.getLocationOnScreen().y));    // TODO: use precise?
+        drawingPanel.setFocusable(true);
 
         controlPanel = new JPanel(new GridBagLayout());
 
+        transformPanel = new JPanel(new FlowLayout());
+        transformPanel.setLayout(new GridLayout(3, 1, 5, 5)); // 3 rows, spacing between
+        transformPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.BLACK, 2),
+                "Transform",
+                TitledBorder.CENTER,
+                TitledBorder.TOP,
+                new Font("SansSerif", Font.BOLD, 16),
+                Color.BLACK
+        ));
+        transformPanel.setBackground(new Color(240, 240, 240));
+        for (JLabel label : transformLabels) {
+            label.setFont(new Font("Arial", Font.PLAIN, 14));
+            transformPanel.add(label);
+        }
+
         Dimension BIG_BUTTON_SIZE = new Dimension(220, 30);
         Dimension SMALL_BUTTON_SIZE = new Dimension(100, 30);
-        startButton = createButton("Start", e -> startButton(), BIG_BUTTON_SIZE);
+
+        startButton = createButton("Start", _ -> startButton(), BIG_BUTTON_SIZE);
+        generateButton = createButton("Generate", _ -> generateButton(), BIG_BUTTON_SIZE);
+
         addNodeButton = createModeChangeButton("Add Node", modes.ADD_NODE ,SMALL_BUTTON_SIZE);
         addBlockButton = createModeChangeButton("Add Block", modes.ADD_BLOCK, SMALL_BUTTON_SIZE);
-        saveButton = createButton("Save", e -> saveButton(), SMALL_BUTTON_SIZE);
-        loadButton = createButton("Load", e -> loadButton(), SMALL_BUTTON_SIZE);
 
-        nextButton = createButton("Next", e -> nextButton(), SMALL_BUTTON_SIZE);
-        playButton = createButton("Play", e -> playButton(), SMALL_BUTTON_SIZE);
-        pauseButton = createButton("Pause", e -> pauseButton(), SMALL_BUTTON_SIZE);
-        skipButton = createButton("Skip to End", e -> skipButton(), SMALL_BUTTON_SIZE);
+        saveButton = createButton("Save", _ -> saveButton(), SMALL_BUTTON_SIZE);
+        loadButton = createButton("Load", _ -> loadButton(), SMALL_BUTTON_SIZE);
+
+        nextButton = createButton("Next", _ -> nextButton(), SMALL_BUTTON_SIZE);
+        playButton = createButton("Play", _ -> playButton(), SMALL_BUTTON_SIZE);
+        pauseButton = createButton("Pause", _ -> pauseButton(), SMALL_BUTTON_SIZE);
+        skipButton = createButton("Skip to End", _ -> skipButton(), SMALL_BUTTON_SIZE);
 
         layoutBuildComponents();
         frame.setVisible(true);
 
-        playTimer = new Timer(0, e -> {
+        playTimer = new Timer(0, _ -> {
             if (!ticker.isFinished()) {
                 tick();
             } else {
@@ -111,6 +146,16 @@ public class MainSimulationWindow {
 
     private void setCurrentMode(Mode mode) { currentMode.close(); currentMode = mode; currentMode.open(); }
     public boolean isBuilding() { return isBuilding; }
+
+    private static JLabel createTransformLabel(String text) {
+        JLabel label = new JLabel(text, SwingConstants.CENTER);
+        label.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        label.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+        label.setPreferredSize(new Dimension(100, 25)); // fixed size
+        label.setMinimumSize(new Dimension(100, 25));
+        label.setMaximumSize(new Dimension(100, 25));
+        return label;
+    }
 
     private void startButton() {
         isBuilding = !isBuilding;
@@ -133,15 +178,20 @@ public class MainSimulationWindow {
         controlPanel.repaint();
     }
 
+    private void generateButton() {
+        GenerationWindow genWindow = new GenerationWindow(frame);
+        setShapes(genWindow.getGeneratedGraph());
+    }
+
     private void saveButton() {
-        String filePath = PathChooser.writePath(Constants.PRESETS_DIRECTORY);
+        String filePath = PathChooser.writePath(GUIConstants.PRESETS_DIRECTORY);
         if (filePath != null) Storage.saveTo(nodes, blocks, filePath);
     }
     private void loadButton() {
-        String filePath = PathChooser.choosePath(Constants.PRESETS_DIRECTORY);
+        String filePath = PathChooser.choosePath(GUIConstants.PRESETS_DIRECTORY);
         if (filePath == null) return;
         List<ShapeGUI> shapes = Storage.loadFrom(filePath);
-        if (shapes != null) setShapes(shapes);
+        setShapes(shapes);
     }
     private void nextButton() {
         tick();
@@ -179,7 +229,7 @@ public class MainSimulationWindow {
         nodes.add(node);
         drawingPanel.repaint();
     }
-    public void addEdge(NodeGUI node1, NodeGUI node2) {
+    private void addEdge(NodeGUI node1, NodeGUI node2) {
         EdgeGUI edge = new EdgeGUI(node1, node2);
         edges.add(edge);
         drawingPanel.repaint();
@@ -233,6 +283,8 @@ public class MainSimulationWindow {
     }
 
     public void setShapes(List<ShapeGUI> shapes) {
+        if (shapes == null) return;
+
         List<NodeGUI> nodes = new ArrayList<>();
         List<BlockGUI> blocks = new ArrayList<>();
         for (ShapeGUI shape : shapes) {
@@ -260,11 +312,8 @@ public class MainSimulationWindow {
     public JFrame getFrame() { return frame; }
 
     public double getHeightAt(int x, int y) {
-        double maxHeight = Constants.MINIMUM_HEIGHT - 1;
-        for (BlockGUI b : blocks)
-            if (b.contains(x, y, getTransform())) maxHeight = Math.max(maxHeight, b.getHeight());
-
-        return maxHeight != Constants.MINIMUM_HEIGHT - 1 ? maxHeight : 0.0;
+        Position pos = getTransform().screenToWorld(x, y);
+        return physics.getHeightAt(pos.x, pos.y);
     }
 
     public ShapeGUI getShapeAt(int x, int y) {
@@ -277,9 +326,8 @@ public class MainSimulationWindow {
         return null;
     }
 
-    private boolean shouldAddEdge(NodeGUI node1, NodeGUI node2) {
-        return physics.probabilityOfMessagePassing(node1.node, node2.node) > 0.0 &&
-                !node1.node.hasNeighbour(node2.node);
+    private boolean shouldAddEdge(NodeGUI node1, NodeGUI node2) {  // check physics, and they are not already connected
+        return physics.shouldAddEdge(node1.node, node2.node) && !node1.node.hasNeighbour(node2.node);
     }
 
     private void layoutBuildComponents() {
@@ -292,6 +340,9 @@ public class MainSimulationWindow {
         gbc.gridy = 0;
         gbc.gridwidth = 2;
         controlPanel.add(startButton, gbc);
+
+        gbc.gridy++;
+        controlPanel.add(generateButton, gbc);
 
         gbc.gridwidth = 1;
         gbc.gridy++;
@@ -306,6 +357,17 @@ public class MainSimulationWindow {
 
         gbc.gridx = 1;
         controlPanel.add(loadButton, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        gbc.gridwidth = 2;
+        controlPanel.add(Box.createVerticalGlue(), gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth = 2;
+        controlPanel.add(transformPanel, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;
@@ -365,7 +427,7 @@ public class MainSimulationWindow {
         double realMax = 2.0;
 
         JSlider speedSlider = new JSlider(sliderMin, sliderMax, 10); // initial value = 1.0
-        speedSlider.addChangeListener(e -> {
+        speedSlider.addChangeListener(_ -> {
             int sliderValue = speedSlider.getValue();
             currentDelay = realMin + (realMax - realMin) * (sliderValue - sliderMin) / (sliderMax - sliderMin);
         });
@@ -429,6 +491,10 @@ public class MainSimulationWindow {
         receivedPanel.setBackground(new Color(230, 230, 230)); // Light gray
 
         controlPanel.add(receivedPanel, gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth = 2;
+        controlPanel.add(transformPanel, gbc);
     }
 
     private void updateStats() {
@@ -450,7 +516,8 @@ public class MainSimulationWindow {
 
         Map<Message, Node> messagesReceived = ticker.getMessagesReceivedThisTick();
         receivedPanel.removeAll();
-        receivedPanel.setLayout(new GridLayout(messagesReceived.size(), 1, 5, 5)); // 6 rows, spacing between items
+        receivedPanel.setLayout(new GridLayout(Math.min(messagesReceived.size(), GUIConstants.MAX_RCVED_MESSAGES_DISPLAYED),
+                           1, 5, 5)); // 6 rows, spacing between items
         receivedPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.BLACK, 2),
                 "Received Messages",
@@ -465,6 +532,7 @@ public class MainSimulationWindow {
             noMessagesLabel.setHorizontalAlignment(SwingConstants.CENTER);
             receivedPanel.add(noMessagesLabel);
         } else {
+            int count = 0;
             for (Map.Entry<Message, Node> entry : messagesReceived.entrySet()) {
                 Message msg = entry.getKey();
                 Node sourceNode = entry.getValue();
@@ -472,13 +540,16 @@ public class MainSimulationWindow {
                         " from " + msg.sourceId);
                 messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
                 receivedPanel.add(messageLabel);
+                if (++count >= GUIConstants.MAX_RCVED_MESSAGES_DISPLAYED) break;
             }
         }
     }
 
     private void highlightButton(JButton button) {
-        button.setBackground(Constants.CHOSEN_BUTTON_COLOR); // Light blue background
-        button.setForeground(Color.BLACK);
+        if (button != null) {
+            button.setBackground(GUIConstants.CHOSEN_BUTTON_COLOR); // Light blue background
+            button.setForeground(Color.BLACK);
+        }
 
         for (Component comp : controlPanel.getComponents()) {
             if (comp instanceof JButton otherButton && comp != button) {
@@ -496,8 +567,8 @@ public class MainSimulationWindow {
     private JButton createModeChangeButton(String text, Mode mode, Dimension size) {
         JButton button = new JButton(text);
         button.setPreferredSize(size);
-        button.addActionListener(e -> {
-            if (button.getBackground() == Constants.CHOSEN_BUTTON_COLOR) {
+        button.addActionListener(_ -> {
+            if (button.getBackground() == GUIConstants.CHOSEN_BUTTON_COLOR) {
                 setCurrentMode(modes.BLANK);
                 button.setBackground(null);
                 button.setForeground(null);
@@ -516,5 +587,13 @@ public class MainSimulationWindow {
 
     public void setTransform(ScreenTransform t) {
         transform = t;
+        updateTransformLabels();
     }
+
+    private void updateTransformLabels() {
+        transformLabels[0].setText(String.format("X: %.2f", transform.x()));
+        transformLabels[1].setText(String.format("Y: %.2f", transform.y()));
+        transformLabels[2].setText(String.format("Zoom: %.4f", transform.zoom()));
+    }
+
 }

@@ -1,8 +1,5 @@
 package logic;
 
-import logic.communication.transmitters.Transmitter;
-import logic.graph_objects.Node;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,11 +28,10 @@ public class Statistics {
     }
 
     public void addTransmission() { totalTransmissions += 1; }
-    public boolean addOriginalMessage(int messageHash) { return originalMessagesHashes.add(messageHash); }
-    public boolean addSuccessfulMessage(int messageHash, int latency) {
+    public void addOriginalMessage(int messageHash) { originalMessagesHashes.add(messageHash); }
+    public void addSuccessfulMessage(int messageHash, int latency) {
         boolean added = successfulMessageHashes.add(messageHash);
         if (added) addLatency(latency);
-        return added;
     }
     public void addLatency(int latency) {
         latenciesTotal += latency;
