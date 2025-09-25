@@ -78,6 +78,8 @@ public class GraphGenerator {
     }
 
     private void scheduleMessages(List<Node> nodes, int numMessagesPerTick, boolean[] isMessageTick) {
+        for (Node n : nodes) n.getTransmitter().clearSchedule();
+
         for (int tick = 0; tick < isMessageTick.length; ++tick) {
             if (!isMessageTick[tick]) continue;
 
@@ -89,7 +91,7 @@ public class GraphGenerator {
                 int destId = rand.nextInt(nodes.size());
                 while (destId == n.id) destId = rand.nextInt(nodes.size());
                 String payload = "Msg from " + n.id + " at tick " + tick;
-                n.getTransmitter().scheduleMessage(payload, destId, tick);
+                n.getTransmitter().scheduleMessage(tick, payload, destId);
             }
         }
     }

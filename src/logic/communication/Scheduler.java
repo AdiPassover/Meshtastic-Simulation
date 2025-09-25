@@ -26,7 +26,7 @@ public class Scheduler {
                 String payload = parts[LogicConstants.CSV_PAYLOAD_COL].trim();
                 int receiverId = Integer.parseInt(parts[LogicConstants.CSV_RECV_COL].trim());
 
-                transmitter.scheduleMessage(payload, receiverId, sendTick);
+                transmitter.scheduleMessage(sendTick, payload, receiverId);
             }
         } catch (FileNotFoundException e) {
             System.err.println("CSV file not found: " + e.getMessage());

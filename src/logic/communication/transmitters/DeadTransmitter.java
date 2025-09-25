@@ -9,10 +9,10 @@ import java.util.Set;
 
 public class DeadTransmitter extends Transmitter {
 
-    private final Set<Message> allMessages = new HashSet<>();
-
     public DeadTransmitter(Node owner) { super(owner); }
 
+    @Override
+    public void start() {}
 
     @Override
     public Transmission transmit(int currentTick) { return null; }
@@ -21,21 +21,6 @@ public class DeadTransmitter extends Transmitter {
     public void receive(Transmission msg, int currentTick) {}
 
     @Override
-    public void scheduleMessage(String payload, int destinationId, int sendTick) {
-        // Store the message for statistics, but do not schedule it
-        Message message = new Message(owner.id, payload, 0, destinationId, sendTick);
-        allMessages.add(message);
-    }
-
-    @Override
-    public void clearSchedule() {}
-
-    @Override
     public boolean isScheduleEmpty(int currentTick) { return true; }
-
-    @Override
-    public Set<Message> getAllOriginalScheduledMessages() {
-        return new HashSet<>(allMessages);
-    }
 
 }

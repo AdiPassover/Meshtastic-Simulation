@@ -24,12 +24,13 @@ public class Ticker {
 
         this.stats = new Statistics(graph.size());
         for (Node node : graph) {
-            Set<Message> messages = node.getTransmitter().getAllOriginalScheduledMessages();
-            for (Message message : messages) {
+            for (Message message : node.getTransmitter().getAllOriginalScheduledMessages()) {
                 stats.addOriginalMessage(message.hashCode());
                 if (message.destinationId == -1) stats.addBroadcastMessage(message.hashCode());
             }
         }
+
+        for (Node node : graph) node.getTransmitter().start();
     }
 
     public int getCurrentTick() { return currentTick; }
