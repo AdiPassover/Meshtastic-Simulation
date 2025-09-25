@@ -15,8 +15,8 @@ public class FloodingTransmitter extends Transmitter {
     public final static int DEFAULT_TTL = 5;
 
     public final int START_TTL;
-    private final Map<Integer, Message> scheduledMessages = new HashMap<>();
-    private final Set<Integer> receivedMessageHashes = new HashSet<>();
+    protected final Map<Integer, Message> scheduledMessages = new HashMap<>();
+    protected final Set<Integer> receivedMessageHashes = new HashSet<>();
 
 
     public FloodingTransmitter(Node owner, int startTtl) {
