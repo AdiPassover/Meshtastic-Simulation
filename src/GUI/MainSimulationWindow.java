@@ -33,13 +33,13 @@ public class MainSimulationWindow {
     private final JPanel controlPanel, transformPanel;
     private final JLabel[] transformLabels = { createTransformLabel("X: 0"), createTransformLabel("Y: 0"), createTransformLabel("Zoom: 1.0x") };
     private final JButton startButton,addNodeButton, addBlockButton, saveButton, loadButton, nextButton, playButton,
-            pauseButton, skipButton, generateButton;
+            pauseButton, skipButton, generateButton, scheduleButton;
     private final JPanel statsPanel = new JPanel();
     private final JPanel receivedPanel = new JPanel();
 
     private final ModeFactory modes = new ModeFactory(this);
     private Mode currentMode = modes.BLANK;
-    private boolean isBuilding = true; // Used to track if we are in building mode
+    private boolean isEditing = true; // Used to track if we are in building mode
     private boolean isPlaying = false;
 
     private Ticker ticker;
@@ -117,8 +117,9 @@ public class MainSimulationWindow {
         Dimension BIG_BUTTON_SIZE = new Dimension(220, 30);
         Dimension SMALL_BUTTON_SIZE = new Dimension(100, 30);
 
-        startButton = createButton("Start", _ -> startButton(), BIG_BUTTON_SIZE);
+        startButton = createButton("Simulate", _ -> startButton(), BIG_BUTTON_SIZE);
         generateButton = createButton("Generate", _ -> generateButton(), BIG_BUTTON_SIZE);
+        scheduleButton = createButton("View Schedule", _ -> scheduleButton(), BIG_BUTTON_SIZE);
 
         addNodeButton = createModeChangeButton("Add Node", modes.ADD_NODE ,SMALL_BUTTON_SIZE);
         addBlockButton = createModeChangeButton("Add Block", modes.ADD_BLOCK, SMALL_BUTTON_SIZE);
@@ -146,7 +147,7 @@ public class MainSimulationWindow {
 
 
     private void setCurrentMode(Mode mode) { currentMode.close(); currentMode = mode; currentMode.open(); }
-    public boolean isBuilding() { return isBuilding; }
+    public boolean isEditing() { return isEditing; }
 
     private static JLabel createTransformLabel(String text) {
         JLabel label = new JLabel(text, SwingConstants.CENTER);
@@ -159,15 +160,15 @@ public class MainSimulationWindow {
     }
 
     private void startButton() {
-        isBuilding = !isBuilding;
+        isEditing = !isEditing;
         controlPanel.removeAll();
 
-        if (isBuilding) {
-            startButton.setText("Start");
+        if (isEditing) {
+            startButton.setText("Simulate");
             layoutBuildComponents();
             ticker = null;
         } else {
-            startButton.setText("Stop");
+            startButton.setText("Edit");
             layoutSimulationComponents();
 
             List<Block> logicBlocks = new ArrayList<>();
@@ -182,6 +183,12 @@ public class MainSimulationWindow {
     private void generateButton() {
         GenerationWindow genWindow = new GenerationWindow(frame);
         setShapes(genWindow.getGeneratedGraph());
+    }
+
+    private void scheduleButton() {
+        List<Node> logicNodes = new ArrayList<>();
+        for (NodeGUI node : nodes) logicNodes.add(node.node);
+        ScheduleWindow.viewSchedule(logicNodes);
     }
 
     private void saveButton() {
@@ -361,6 +368,11 @@ public class MainSimulationWindow {
 
         gbc.gridx = 1;
         controlPanel.add(loadButton, gbc);
+
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.gridwidth = 0;
+        controlPanel.add(scheduleButton, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;

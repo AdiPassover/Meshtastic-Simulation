@@ -78,7 +78,7 @@ public class BlankMode extends Mode {
     }
 
     private void showNodePopup(NodeGUI node, int x, int y) {
-        if (!mainWindow.isBuilding()) return;
+        if (!mainWindow.isEditing()) return;
         JPopupMenu popup = new JPopupMenu();
 
         JMenuItem transmitterItem = new JMenuItem("Change Transmitter");

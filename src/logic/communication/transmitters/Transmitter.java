@@ -32,7 +32,7 @@ public abstract class Transmitter implements Serializable {
 
     /** Called before simulation starts to schedule messages */
     public final void scheduleMessage(int sendTick, String payload, int destinationId) {
-        if (hasMessageScheduledAt(sendTick))
+        if (originalSchedule.containsKey(sendTick))
             throw new IllegalStateException("Transmitter " + owner.id +
                     " already has a message scheduled at tick " + sendTick);
         originalSchedule.put(sendTick, new Message(owner.id, payload, destinationId, sendTick));
@@ -40,8 +40,8 @@ public abstract class Transmitter implements Serializable {
     public final void clearSchedule() {
         originalSchedule.clear();
     }
-    public final boolean hasMessageScheduledAt(int tick) {
-        return originalSchedule.containsKey(tick);
+    public final Message messageScheduledAt(int tick) {
+        return originalSchedule.get(tick);
     }
     public final Iterable<Message> getAllOriginalScheduledMessages() {
         return originalSchedule.values();
