@@ -11,7 +11,7 @@ import GUI.shapesGUI.ShapeGUI;
 import logic.Statistics;
 import logic.Storage;
 import logic.communication.Message;
-import logic.communication.Ticker;
+import logic.communication.TickerBatch;
 import logic.graph_objects.Graph;
 import logic.graph_objects.Node;
 import logic.physics.Block;
@@ -36,13 +36,14 @@ public class MainSimulationWindow {
             pauseButton, skipButton, generateButton, scheduleButton;
     private final JPanel statsPanel = new JPanel();
     private final JPanel receivedPanel = new JPanel();
+    private final JSpinner batchSizeField = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
 
     private final ModeFactory modes = new ModeFactory(this);
     private Mode currentMode = modes.BLANK;
     private boolean isEditing = true; // Used to track if we are in building mode
     private boolean isPlaying = false;
 
-    private Ticker ticker;
+    private TickerBatch tickers;
     private final PhysicsEngine physics = new PhysicsEngine();
 
     private double currentDelay = 1.0; // Delay for the simulation, in seconds
@@ -136,8 +137,8 @@ public class MainSimulationWindow {
         frame.setVisible(true);
 
         playTimer = new Timer(0, _ -> {
-            if (!ticker.isFinished()) {
-                tick();
+            if (tickers == null || !tickers.isFinished()) {
+                tick(true);
             } else {
                 playTimer.stop();
                 isPlaying = false;
@@ -166,14 +167,12 @@ public class MainSimulationWindow {
         if (isEditing) {
             startButton.setText("Simulate");
             layoutBuildComponents();
-            ticker = null;
+            playTimer.stop();
+            tickers = null;
         } else {
             startButton.setText("Edit");
+            batchSizeField.setEnabled(true);
             layoutSimulationComponents();
-
-            List<Block> logicBlocks = new ArrayList<>();
-            for (BlockGUI block : blocks) logicBlocks.add(block.block);
-            ticker = new Ticker(getGraph(), logicBlocks);
         }
 
         controlPanel.revalidate();
@@ -202,12 +201,13 @@ public class MainSimulationWindow {
         setShapes(shapes);
     }
     private void nextButton() {
-        tick();
+        tick(true);
     }
     private void skipButton() {
-        while (!ticker.isFinished()) {
-            tick();
+        while (tickers == null || !tickers.isFinished()) {
+            tick(false);
         }
+        updateStats();
     }
     private void playButton() {
         if (!isPlaying) {
@@ -223,9 +223,14 @@ public class MainSimulationWindow {
             playTimer.stop();
         }
     }
-    private void tick() {
-        ticker.tick();
-        updateStats();
+    private void tick(boolean updateGUI) {
+        if (tickers == null) {
+            List<Block> logicBlocks = blocks.stream().map(BlockGUI::getBlock).toList();
+            batchSizeField.setEnabled(false);
+            tickers = new TickerBatch((int) batchSizeField.getValue(), getGraph(), logicBlocks);
+        }
+        tickers.tick();
+        if (updateGUI) updateStats();
     }
 
     private void setTimerDelay() {
@@ -411,8 +416,18 @@ public class MainSimulationWindow {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.anchor = GridBagConstraints.WEST;
-        gbc.gridx = 0;
         gbc.gridy = 0;
+
+        gbc.gridwidth = 1;
+        JLabel batchSizeLabel = new JLabel("Batch size:");
+        gbc.gridx = 0;
+        controlPanel.add(batchSizeLabel, gbc);
+
+        gbc.gridx = 1;
+        controlPanel.add(batchSizeField, gbc);
+
+        gbc.gridy++;
+        gbc.gridx = 0;
         gbc.gridwidth = 2;
         controlPanel.add(startButton, gbc);
 
@@ -423,8 +438,8 @@ public class MainSimulationWindow {
         gbc.gridx = 1;
         controlPanel.add(skipButton, gbc);
 
-        gbc.gridx = 0;
         gbc.gridy++;
+        gbc.gridx = 0;
         controlPanel.add(playButton, gbc);
 
         gbc.gridx = 1;
@@ -511,6 +526,7 @@ public class MainSimulationWindow {
                 Color.BLACK
         ));
         receivedPanel.setBackground(new Color(230, 230, 230)); // Light gray
+        receivedPanel.removeAll();
 
         controlPanel.add(receivedPanel, gbc);
 
@@ -520,9 +536,9 @@ public class MainSimulationWindow {
     }
 
     private void updateStats() {
-        if (ticker == null) return;
+        if (tickers == null) return;
 
-        Statistics stats = ticker.getStatistics();
+        Statistics.AverageStatistics stats = tickers.getStatistics();
         for (Component comp : statsPanel.getComponents()) {
             if (comp instanceof JLabel label) {
                 switch (label.getText().split(":")[0]) {
@@ -531,12 +547,12 @@ public class MainSimulationWindow {
                     case "Successful Messages" -> label.setText("Successful Messages: " + stats.getSuccessfulMessages());
                     case "Average Latency" -> label.setText(String.format("Average Latency: %.2f", stats.getAverageLatency()));
                     case "Collisions" -> label.setText("Collisions: " + stats.getNumCollisions());
-                    case "Current Tick" -> label.setText("Current Tick: " + ticker.getCurrentTick());
+                    case "Current Tick" -> label.setText("Current Tick: " + tickers.getCurrentTick());
                 }
             }
         }
 
-        Map<Message, Node> messagesReceived = ticker.getMessagesReceivedThisTick();
+        Map<Message, Node> messagesReceived = tickers.getMessagesReceivedThisTick();
         receivedPanel.removeAll();
         receivedPanel.setLayout(new GridLayout(Math.min(messagesReceived.size(), GUIConstants.MAX_RCVED_MESSAGES_DISPLAYED),
                            1, 5, 5)); // 6 rows, spacing between items

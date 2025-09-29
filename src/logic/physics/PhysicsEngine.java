@@ -52,7 +52,8 @@ public class PhysicsEngine implements Serializable {
     public double probabilityOfSurvivingCollision(int numMessagesCollided) {
         // TODO: this is very unforgiving and results in low success rates
         // should probably either increase this or make time more continuous to reduce collisions
-        return 1.0 / numMessagesCollided;
+        // trying sqrt to improve a little
+        return 1.0 / Math.sqrt(numMessagesCollided);
     }
 
     public boolean shouldAddEdge(Node source, Node receiver) {

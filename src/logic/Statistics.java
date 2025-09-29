@@ -2,11 +2,11 @@ package logic;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class Statistics {
-
     private final int graphSize;
 
     private int totalTransmissions;
@@ -58,7 +58,7 @@ public class Statistics {
         System.out.println("Total transmissions: " + getTotalTransmissions());
         System.out.println("Original messages: " + getOriginalMessages());
         System.out.println("Successful messages: " + getSuccessfulMessages());
-        // System.out.println("Message success rate: " + successfulMessages / originalMessages);
+        // System.out.println("Message success rate: " + getSuccessfulMessages() / getOriginalMessages());
         System.out.println("Average latency: " + getAverageLatency());
         System.out.println("Number of collisions: " + getNumCollisions());
     }
@@ -79,5 +79,50 @@ public class Statistics {
 
         if (nodes.size() == graphSize - 1)
             addSuccessfulMessage(msgHash, latency);
+    }
+
+    public static AverageStatistics createAverage(List<Statistics> list) {
+        assert !list.isEmpty();
+        return new AverageStatistics(
+            list.stream().mapToDouble(Statistics::getTotalTransmissions).average().orElseThrow(),
+            list.stream().mapToDouble(Statistics::getOriginalMessages).average().orElseThrow(),
+            list.stream().mapToDouble(Statistics::getSuccessfulMessages).average().orElseThrow(),
+            list.stream().mapToDouble(Statistics::getAverageLatency).average().orElseThrow(),
+            list.stream().mapToDouble(Statistics::getNumCollisions).average().orElseThrow());
+    }
+
+    public static class AverageStatistics {
+        private final double totalTransmissions;
+        private final double originalMessages;
+        private final double successfulMessages;
+        private final double averageLatency;
+        private final double numCollisions;
+        public AverageStatistics(double totalTransmissions, double originalMessages, double successfulMessages, double averageLatency, double numCollisions) {
+          this.totalTransmissions = totalTransmissions;
+          this.originalMessages = originalMessages;
+          this.successfulMessages = successfulMessages;
+          this.averageLatency = averageLatency;
+          this.numCollisions = numCollisions;
+        }
+
+        public double getTotalTransmissions() {
+            return totalTransmissions;
+        }
+
+        public double getOriginalMessages() {
+            return originalMessages;
+        }
+
+        public double getSuccessfulMessages() {
+            return successfulMessages;
+        }
+
+        public double getAverageLatency() {
+            return averageLatency;
+        }
+
+        public double getNumCollisions() {
+            return numCollisions;
+        }
     }
 }
