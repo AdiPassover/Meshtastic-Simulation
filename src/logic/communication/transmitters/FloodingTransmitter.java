@@ -2,6 +2,7 @@ package logic.communication.transmitters;
 
 import logic.communication.Message;
 import logic.communication.Transmission;
+import logic.communication.TtlMessage;
 import logic.graph_objects.Node;
 
 import java.util.HashMap;
@@ -11,17 +12,28 @@ import java.util.Set;
 
 public class FloodingTransmitter extends Transmitter {
 
-    private final Map<Integer, Message> scheduledMessages = new HashMap<>();
-    private final Set<Message> allOriginalMessages = new HashSet<>();
+    public final static int DEFAULT_TTL = 5;
 
-    private static final int DEFAULT_TTL = 5;
+    public final int START_TTL;
+    protected final Map<Integer, Message> scheduledMessages = new HashMap<>();
+    protected final Set<Integer> receivedMessageHashes = new HashSet<>();
 
-    private final Set<Integer> receivedMessageHashes = new HashSet<>();
 
-    public FloodingTransmitter(Node owner) {
-        super(owner); // Owner will be set later
+    public FloodingTransmitter(Node owner, int startTtl) {
+        super(owner);
+        this.START_TTL = startTtl;
     }
+    public FloodingTransmitter(Node owner) { this(owner, DEFAULT_TTL); }
 
+
+    @Override
+    public void start() {
+        // Copy original schedule and convert to TtlMessages
+        for (Message msg : getAllOriginalScheduledMessages()) {
+            scheduledMessages.put(msg.creationTick, new TtlMessage(
+                    msg.sourceId, msg.payload, START_TTL, msg.destinationId, msg.header, msg.creationTick));
+        }
+    }
 
     @Override
     public Transmission transmit(int currentTick) {
@@ -32,9 +44,10 @@ public class FloodingTransmitter extends Transmitter {
 
     @Override
     public void receive(Transmission tx, int currentTick) {
-        Message msg = tx.message;
-        if (receivedMessageHashes.contains(msg.hashCode())) return;
+        if (!(tx.message instanceof TtlMessage msg)) return; // Ignore non-TTL messages
+        if (receivedMessageHashes.contains(msg.hashCode())) return; // Ignore already received messages
         receivedMessageHashes.add(msg.hashCode());
+
         if (msg.destinationId == owner.id || (msg.destinationId == -1 && msg.sourceId != owner.id))
         {
             // If the message is for this node, stop forwarding
@@ -53,29 +66,12 @@ public class FloodingTransmitter extends Transmitter {
     }
 
     @Override
-    public void scheduleMessage(String payload, int destinationId, int sendTick) {
-        Message msg = new Message(owner.id, payload, DEFAULT_TTL, destinationId, sendTick);
-        scheduledMessages.put(sendTick, msg);
-        allOriginalMessages.add(msg);
-    }
-
-    @Override
-    public void clearSchedule() {
-        scheduledMessages.clear();
-    }
-
-    @Override
     public boolean isScheduleEmpty(int currentTick) {
         Set<Integer> keys = scheduledMessages.keySet();
         for (Integer key : keys) {
             if (key >= currentTick) return false;
         }
         return true;
-    }
-
-    @Override
-    public Set<Message> getAllOriginalScheduledMessages() {
-        return new HashSet<>(scheduledMessages.values());
     }
 
 }

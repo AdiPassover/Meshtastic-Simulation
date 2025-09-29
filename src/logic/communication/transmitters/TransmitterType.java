@@ -7,7 +7,8 @@ import java.util.function.Function;
 
 public enum TransmitterType {
     DEAD(DeadTransmitter::new, Color.RED),
-    FLOODING(FloodingTransmitter::new, Color.BLUE);
+    FLOODING(FloodingTransmitter::new, Color.BLUE),
+    GOSSIPING(GossipingTransmitter::new, new Color(0, 182, 0));
 
     private final Function<Node, Transmitter> constructor;
     private final Color color;
