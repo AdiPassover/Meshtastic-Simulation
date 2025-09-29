@@ -48,6 +48,19 @@ public class GraphGenerator {
         return graph;
     }
 
+    public List<ShapeGUI> generate(int numNodes, int numBlocks, float tickMessageProbability, TransmitterType transmitterType, boolean[] isMessageTick) {
+        List<Block> blocks = generateBlocks(numBlocks);
+        List<Node> nodes = generateNodes(numNodes, blocks, transmitterType);
+
+        scheduleMessages(nodes, tickMessageProbability, isMessageTick);
+
+        List<ShapeGUI> graph = new ArrayList<>();
+        for (Node n : nodes) graph.add(new NodeGUI(n));
+        for (Block b : blocks) graph.add(new BlockGUI(b));
+
+        return graph;
+    }
+
     private List<Node> generateNodes(int numNodes, List<Block> blocks, TransmitterType type) {
         List<Node> nodes = new ArrayList<>();
         for (int i = 0; i < numNodes; ++i) {
@@ -93,6 +106,20 @@ public class GraphGenerator {
                 String payload = "Msg from " + n.id + " at tick " + tick;
                 n.getTransmitter().scheduleMessage(tick, payload, destId);
             }
+        }
+    }
+
+    private void scheduleMessages(List<Node> nodes, float tickMessageProbability, boolean[] isMessageTick) {
+        for (Node n : nodes) n.getTransmitter().clearSchedule();
+
+        for (int tick = 0; tick < isMessageTick.length; ++tick) {
+            if (!isMessageTick[tick] || rand.nextFloat() > tickMessageProbability) continue;
+
+            Node sendingNode = nodes.get(rand.nextInt(nodes.size()));
+            int destId = rand.nextInt(nodes.size());
+            while (destId == sendingNode.id) destId = rand.nextInt(nodes.size());
+            String payload = "Msg from " + sendingNode.id + " at tick " + tick;
+            sendingNode.getTransmitter().scheduleMessage(tick, payload, destId);
         }
     }
 

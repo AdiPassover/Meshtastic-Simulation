@@ -10,11 +10,10 @@ import java.util.List;
 import java.util.Random;
 
 public class GenerationWindow extends JDialog {
-
     public static final int DEFAULT_NUM_NODES = 100;
     public static final int DEFAULT_NUM_BLOCKS = 100;
-    public static final int DEFAULT_NUM_MESSAGES = 20;
-    public static final int DEFAULT_NUM_TICKS = 20;
+    public static final int DEFAULT_NUM_MESSAGES = 1;
+    public static final int DEFAULT_NUM_TICKS = 400;
     public static final int DEFAULT_SEED = 420;
 
     private final JTextField nodesField;
@@ -61,7 +60,7 @@ public class GenerationWindow extends JDialog {
         JPanel seedPanel = new JPanel(new BorderLayout());
         seedField = new JTextField(String.valueOf(DEFAULT_SEED));
         JButton rerollButton = new JButton("Reroll");
-        rerollButton.addActionListener(e -> {
+        rerollButton.addActionListener(_ -> {
             rerollSeed = new Random().nextInt();
             seedField.setText(String.valueOf(rerollSeed));
         });
@@ -70,7 +69,7 @@ public class GenerationWindow extends JDialog {
         formPanel.add(seedPanel);
 
         JButton configTicksButton = new JButton("Configure ticks");
-        configTicksButton.addActionListener(e -> {
+        configTicksButton.addActionListener(_ -> {
             int numTicks = Integer.parseInt(numTicksField.getText());
             TickConfigurationWindow tickWindow = new TickConfigurationWindow((JFrame) getParent(), numTicks, isMessageTick);
             tickWindow.setVisible(true);
@@ -81,11 +80,17 @@ public class GenerationWindow extends JDialog {
         });
 
         JButton doneButton = new JButton("Done");
-        doneButton.addActionListener(e -> {
+        doneButton.addActionListener(_ -> {
             // Example: Collect inputs here and call generator
             int numNodes = Integer.parseInt(nodesField.getText());
             int numBlocks = Integer.parseInt(blocksField.getText());
-            int numMessages = Integer.parseInt(messagesField.getText());
+            int numMessages = 0;
+            float tickMessageProbability = 0;
+            if (messagesField.getText().contains(".")) {
+                tickMessageProbability = Float.parseFloat(messagesField.getText());
+            } else {
+                numMessages = Integer.parseInt(messagesField.getText());
+            }
             int numTicks = Integer.parseInt(numTicksField.getText());
             TransmitterType chosenType = TransmitterType.fromString((String) transmitterTypeBox.getSelectedItem());
             long seed = Long.parseLong(seedField.getText());
@@ -99,7 +104,12 @@ public class GenerationWindow extends JDialog {
             }
 
             GraphGenerator graphGenerator = new GraphGenerator(seed);
-            generatedGraph = graphGenerator.generate(numNodes, numBlocks, numMessages, chosenType, ticks);
+
+            if (messagesField.getText().contains(".")) {
+                generatedGraph = graphGenerator.generate(numNodes, numBlocks, tickMessageProbability, chosenType, ticks);
+            } else {
+                generatedGraph = graphGenerator.generate(numNodes, numBlocks, numMessages, chosenType, ticks);
+            }
             dispose();
         });
 
@@ -115,12 +125,9 @@ public class GenerationWindow extends JDialog {
         setVisible(true);
     }
 
-
     public List<ShapeGUI> getGeneratedGraph() {
         return generatedGraph;
     }
-
-
 }
 
 
