@@ -136,7 +136,7 @@ public class MainSimulationWindow {
         frame.setVisible(true);
 
         playTimer = new Timer(0, _ -> {
-            if (!tickers.isFinished()) {
+            if (tickers == null || !tickers.isFinished()) {
                 tick(true);
             } else {
                 playTimer.stop();
@@ -197,7 +197,7 @@ public class MainSimulationWindow {
         tick(true);
     }
     private void skipButton() {
-        while (!tickers.isFinished()) {
+        while (tickers == null || !tickers.isFinished()) {
             tick(false);
         }
         updateStats();
