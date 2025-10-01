@@ -30,7 +30,4 @@ public class GossipingTransmitter extends FloodingTransmitter {
 
         return new Transmission(msg, owner);
     }
-
-
-
 }

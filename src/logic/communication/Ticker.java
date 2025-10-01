@@ -94,10 +94,8 @@ public class Ticker {
         currentTick++;
     }
 
-    public boolean isFinished() {
-        for (Node node : graph)
-            if (!node.getTransmitter().isScheduleEmpty(currentTick)) return false;
-        return true;
+    public boolean isRunning() {
+        return graph.stream().map(Node::getTransmitter).anyMatch(t -> !t.isScheduleEmpty(currentTick));
     }
 
     public Map<Message, Node> getMessagesReceivedThisTick() {

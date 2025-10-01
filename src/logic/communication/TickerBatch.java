@@ -20,8 +20,8 @@ public class TickerBatch {
     }
   }
 
-  public boolean isFinished() {
-    return tickers.stream().allMatch(Ticker::isFinished);
+  public boolean isRunning() {
+    return tickers.stream().anyMatch(Ticker::isRunning);
   }
 
   public void tick() {
@@ -33,12 +33,10 @@ public class TickerBatch {
   }
 
   public int getCurrentTick() {
-    // TODO: is this enough? all current ticks should be the same
     return tickers.getFirst().getCurrentTick();
   }
 
   public Map<Message, Node> getMessagesReceivedThisTick() {
-    // TODO: is this good as a representative or get all (will certainly be too many and might require changes)
     return tickers.getFirst().getMessagesReceivedThisTick();
   }
 }

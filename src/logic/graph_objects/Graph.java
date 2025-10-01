@@ -1,6 +1,7 @@
 package logic.graph_objects;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 public class Graph implements Iterable<Node> {
 
@@ -29,4 +30,7 @@ public class Graph implements Iterable<Node> {
         return nodes.values().iterator();
     }
 
+    public Stream<Node> stream() {
+        return nodes.values().stream();
+    }
 }

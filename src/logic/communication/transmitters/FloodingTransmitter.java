@@ -67,11 +67,6 @@ public class FloodingTransmitter extends Transmitter {
 
     @Override
     public boolean isScheduleEmpty(int currentTick) {
-        Set<Integer> keys = scheduledMessages.keySet();
-        for (Integer key : keys) {
-            if (key >= currentTick) return false;
-        }
-        return true;
+        return scheduledMessages.keySet().stream().noneMatch(tick -> tick >= currentTick);
     }
-
 }
