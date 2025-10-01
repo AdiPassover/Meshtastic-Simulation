@@ -542,12 +542,12 @@ public class MainSimulationWindow {
         for (Component comp : statsPanel.getComponents()) {
             if (comp instanceof JLabel label) {
                 switch (label.getText().split(":")[0]) {
-                    case "Transmissions" -> label.setText("Transmissions: " + stats.totalTransmissions());
-                    case "Original Messages" -> label.setText("Original Messages: " + stats.originalMessages());
-                    case "Successful Messages" -> label.setText("Successful Messages: " + stats.successfulMessages());
+                    case "Transmissions" -> label.setText(String.format("Transmissions: %.2f", stats.totalTransmissions()));
+                    case "Original Messages" -> label.setText(String.format("Original Messages: %.2f", stats.originalMessages()));
+                    case "Successful Messages" -> label.setText(String.format("Successful Messages: %.2f", stats.successfulMessages()));
                     case "Average Latency" -> label.setText(String.format("Average Latency: %.2f", stats.averageLatency()));
-                    case "Collisions" -> label.setText("Collisions: " + stats.numCollisions());
-                    case "Current Tick" -> label.setText("Current Tick: " + tickers.getCurrentTick());
+                    case "Collisions" -> label.setText(String.format("Collisions: %.2f", stats.numCollisions()));
+                    case "Current Tick" -> label.setText(String.format("Current Tick: %d", tickers.getCurrentTick()));
                 }
             }
         }
